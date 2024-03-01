@@ -1,13 +1,14 @@
-import React, { useState } from 'react'
+import React, { useState, useContext } from 'react'
 import { Link } from 'react-router-dom'
 import AuthContext from '../context/AuthContext'
 
 const Header = () => {
-    let { user, logoutUser } = useState(AuthContext);
+    let { logoutUser } = useState(AuthContext);
+    const { user } = useContext(AuthContext);
     return (
         <nav class="navbar navbar-default navbar-expand-sm navbar-dark">
             <div class="container-fluid">
-                <Link class="navbar-brand" to="/"><h1 class="text-light">All-ABoard {user && user.username}!</h1></Link>
+                <Link class="navbar-brand" to="/"><h1 class="text-light">All-ABoard {user && user.username + "!"}</h1></Link>
                 <div class="navbar-nav">
                     <ul class="navbar-nav d-flex">
                         {!user ? 
