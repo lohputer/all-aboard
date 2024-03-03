@@ -3,8 +3,8 @@ import { Link } from 'react-router-dom'
 import AuthContext from '../context/AuthContext'
 
 const Header = () => {
-    let { logoutUser } = useState(AuthContext);
     const { user } = useContext(AuthContext);
+    let { logoutUser } = useContext(AuthContext);
     return (
         <nav class="navbar navbar-default navbar-expand-sm navbar-dark">
             <div class="container-fluid">
