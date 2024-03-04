@@ -8,6 +8,7 @@ const CreatePage = () => {
     const [publicity, setPublicity] = useState(false);
     let createCustom = async (e) => {
         e.preventDefault();
+        console.log({ user: user , title : e.target.title.value, desc : e.target.desc.value, rules : e.target.rules.value, publicity : publicity, currencies : currencies, spaces : spaces })
         const response = await fetch('http://127.0.0.1:8000/api/create/', {
             method: 'POST',
             headers: {
@@ -23,7 +24,9 @@ const CreatePage = () => {
         setCurrencies([...currencies, { id: newId, currencyType: '', currencyImage: null }]);
     };
     const removeCurrency = (id) => {
-        setCurrencies(currencies.filter(currency => currency.id !== id));
+        if (currencies.length > 1) {
+            setCurrencies(currencies.filter(currency => currency.id !== id));
+        }
     };
     const handleCurrencyChange = (id, event) => {
         const { name, value, files } = event.target;
@@ -46,7 +49,9 @@ const CreatePage = () => {
         setSpaces([...spaces, { id: newId, spaceColor: null, spaceType: null, spaceValue: null }]);
     };
     const removeSpace = (id) => {
-        setSpaces(spaces.filter(space => space.id !== id));
+        if (spaces.length > 1) {
+            setSpaces(spaces.filter(space => space.id !== id));
+        }
     };
     const updateSpaceName = (id, event) => {
         const { value } = event.target;
@@ -86,7 +91,7 @@ const CreatePage = () => {
                             spaceValue: "Start"
                         }
                     }
-                } else if (value == "Turn") {
+                } else if (value === "Turn") {
                     return {
                         ...space,
                         spaceType: "Turn",
@@ -96,7 +101,7 @@ const CreatePage = () => {
                     return {
                         ...space,
                         spaceType: "",
-                        spaceValue: null
+                        spaceValue: ''
                     }
                 }
             }
@@ -105,11 +110,11 @@ const CreatePage = () => {
         setSpaces(updatedSpaces);
     }
     const updateSpaceValue = (id, event) => {
-        console.log(event.target.value)
+        console.log(event.target.value, typeof event.target.value)
         const updatedSpaces = spaces.map(space => {
             if (space.id === id) {
-                if (space.spaceType == "Currency") { 
-                    if (typeof event.target.value === 'string') {
+                if (space.spaceType === "Currency") { 
+                    if (isNaN(parseInt(event.target.value))) {
                         return {
                             ...space, 
                             spaceValue: [event.target.value, space.spaceValue[1]]
@@ -117,13 +122,20 @@ const CreatePage = () => {
                     } else {
                         return {
                             ...space,
-                            spaceValue: [space.spaceValue[0], event.target.value]
+                            spaceValue: [space.spaceValue[0], parseInt(event.target.value)]
                         }
                     }
                 } else {
-                    return {
-                        ...space,
-                        spaceValue: event.target.value
+                    if (isNaN(parseInt(event.target.value))) {
+                        return {
+                            ...space,
+                            spaceValue: event.target.value
+                        }
+                    } else {
+                        return {
+                            ...space,
+                            spaceValue: parseInt(event.target.value)
+                        }
                     }
                 }
             }
@@ -139,7 +151,7 @@ const CreatePage = () => {
                 <div className="form-group">
                     <div>
                         <label htmlFor="game_title">Title of Game:</label>
-                        <input type="text" name="title" maxLength="100" class="form-control text-primary rounded shadow border border-primary p-2 my-2 my-2" required id="game_title" />  
+                        <input type="text" name="title" maxLength="100" className="form-control text-primary rounded shadow border border-primary p-2 my-2 my-2" required id="game_title" />  
                     </div>
                     <div>
                         <label htmlFor="game_desc">Description:</label>
@@ -151,7 +163,7 @@ const CreatePage = () => {
                     </div>
                     <h2>Currencies </h2>
                     {currencies.map(currency => (
-                        <div key={currency.id} className="input-group mb-3 border border-primary rounded">
+                        <div className="input-group mb-3 border border-primary rounded">
                             <input
                                 type="text"
                                 className="form-control text-primary"
@@ -187,7 +199,7 @@ const CreatePage = () => {
                     <h2>Spaces</h2>
                     {spaces.map(space => (
                         <div className="form-group border border-primary rounded mb-3">
-                            <div key={space.id} className="input-group">
+                            <div className="input-group">
                                 <input
                                     type="text"
                                     className="form-control text-primary"
@@ -197,7 +209,7 @@ const CreatePage = () => {
                                      onChange={(e)=>updateSpaceName(space.id, e)}
                                 />
                                 <select className="form-select" aria-label="Default select example" onChange={(e)=>updateSpaceType(space.id, e)}>
-                                    <option value="" selected>Select a Function</option>
+                                    <option value="" >Select a Function</option>
                                     <option value="Add">Add (amt) to (currency)</option>
                                     <option value="Remove">Remove (amt) from (currency)</option>
                                     <option value="Movement">Move (amt) spaces</option>
@@ -221,12 +233,12 @@ const CreatePage = () => {
                                     -
                                 </button>
                             </div>
-                            {space.spaceType == "Currency" ?
-                                <div key={space.id} className="input-group">
+                            {space.spaceType === "Currency" ?
+                                <div className="input-group">
                                     <select className="form-select" onChange={(e) => updateSpaceValue(space.id, e)}>
-                                        <option value="" selected>Please choose a currency.</option>
+                                        <option value="" >Please choose a currency.</option>
                                         {currencies.map(currency => currency.currencyType != '' && (
-                                            <option key={currency.id} value={currency.currencyType}>{currency.currencyType}</option>
+                                            <option value={currency.currencyType}>{currency.currencyType}</option>
                                         ))}
                                     </select>
                                     {space.spaceValue[0] != "" && 
@@ -240,8 +252,8 @@ const CreatePage = () => {
                                         />
                                     }
                                 </div>
-                            : ( space.spaceType == "Movement" ? 
-                                <div key={space.id} className="input-group">
+                            : ( space.spaceType === "Movement" ? 
+                                <div className="input-group">
                                     { typeof space.spaceValue !== 'string' ? 
                                         <input
                                             type="number"
@@ -254,7 +266,7 @@ const CreatePage = () => {
                                         />
                                     : 
                                         <select className="form-select" onChange={(e) => updateSpaceValue(space.id, e)}>
-                                            <option value="" selected>Please choose a space.</option>
+                                            <option value="" >Please choose a space.</option>
                                             {spaces.map(space2 => space2.spaceName != space.spaceName && (
                                                 <option key={space2.id} value={space2.spaceName}>{space2.spaceName}</option>
                                             ))}
@@ -262,7 +274,7 @@ const CreatePage = () => {
                                     }
                                 </div>
                             : 
-                                <div key={space.id} className="input-group">
+                                <div className="input-group">
                                 </div>
                             )}
                         </div>
