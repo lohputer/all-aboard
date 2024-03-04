@@ -1,15 +1,6 @@
 from django.contrib import admin
-from .models import BoardGame, Currency, BoardGameSpace
+from .models import *
 
-
-class CurrencyInline(admin.TabularInline):
-    model = Currency
-
-
-class BoardGameSpaceInline(admin.TabularInline):
-    model = BoardGameSpace
-
-
-@admin.register(BoardGame)
-class BoardGameAdmin(admin.ModelAdmin):
-    inlines = [CurrencyInline, BoardGameSpaceInline]
+admin.site.register(BoardGame)
+admin.site.register(Currency)
+admin.site.register(BoardGameSpace)

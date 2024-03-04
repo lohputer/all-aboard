@@ -46,6 +46,8 @@ class SpaceSerializer(serializers.ModelSerializer):
             space.setPurpose(skip=space.spaceValue)
         elif space.spaceType == "Movement":
             space.setPurpose(spaces=space.spaceValue)
+        else:
+            space.spaceValue = ""
         return space
         
 class BoardGameSerializer(serializers.ModelSerializer):
