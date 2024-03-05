@@ -11,6 +11,9 @@ export const AuthProvider = ({children}) => {
     let [user, setUser] = useState(() => (localStorage.getItem('authTokens') ? jwtDecode(localStorage.getItem('authTokens')) : null))
     let [authTokens, setAuthTokens] = useState(() => (localStorage.getItem('authTokens') ? JSON.parse(localStorage.getItem('authTokens')) : null))
     let [loading, setLoading] = useState(true)
+    let [boardGames, setBoardGames] = useState([]);
+    let [currencies, setCurrencies] = useState([]);
+    let [spaces, setSpaces] = useState([]);
 
     const navigate = useNavigate()
 
@@ -46,7 +49,6 @@ export const AuthProvider = ({children}) => {
             body: JSON.stringify({username: e.target.username.value, password: e.target.password.value, email: e.target.email.value })
         });
         let data = await response.json();
-        console.log(data);
         if(data = {message: 'User registered successfully'}){
             navigate('/login')
         } else {
@@ -83,18 +85,25 @@ export const AuthProvider = ({children}) => {
         }
     }
 
-    let contextData = {
-        user: user,
-        authTokens: authTokens,
-        loginUser: loginUser,
-        logoutUser: logoutUser,
-        registerUser: registerUser,
-    }
-
     useEffect(()=>{
-        if(loading){
+        if (loading) {
             updateToken();
         }
+
+        const fetchBoardGames = async () => {
+            try {
+                const response = await fetch('http://127.0.0.1:8000/api/board-games/');
+                const data = await response.json();
+                console.log(data);
+                setBoardGames(data["boards"]);
+                setCurrencies(data["currencies"]);
+                setSpaces(data["spaces"]);
+            } catch (error) {
+                console.error('Error fetching board games:', error);
+            }
+        };
+
+        fetchBoardGames();
 
         const REFRESH_INTERVAL = 1000 * 60 * 4 
         let interval = setInterval(()=>{
@@ -106,6 +115,16 @@ export const AuthProvider = ({children}) => {
 
     },[authTokens, loading]);
 
+    let contextData = {
+        user: user,
+        authTokens: authTokens,
+        loginUser: loginUser,
+        logoutUser: logoutUser,
+        registerUser: registerUser,
+        boardGames: boardGames,
+        currencies: currencies,
+        spaces: spaces
+    }
     return(
         <AuthContext.Provider value={contextData}>
             {children}

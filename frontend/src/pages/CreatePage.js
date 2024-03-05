@@ -19,8 +19,9 @@ const CreatePage = () => {
             body: JSON.stringify({ user: user , title : e.target.title.value, desc : e.target.desc.value, rules : e.target.rules.value, publicity : publicity, currencies : currencies, spaces : spaces })
         });
         let data = await response.json();
-        if (data == {'message': 'Board game created successfully.'}) {
-            navigate('/');
+        console.log(data);
+        if (data['message'] === 'Board game created successfully.') {
+            window.location = "/";
         } else {
             alert('oh dang something went wrong');
         }
@@ -34,21 +35,31 @@ const CreatePage = () => {
             setCurrencies(currencies.filter(currency => currency.id !== id));
         }
     };
-    const handleCurrencyChange = (id, event) => {
-        const { name, value, files } = event.target;
-        console.log(name, value, files);
+    const handleCurrencyTypeChange = (id, event) => {
+        const { value } = event.target;
         const updatedCurrencies = currencies.map(currency => {
             if (currency.id === id) {
                 return {
                     ...currency,
-                    currencyType: value, 
-                    currencyImage: files
+                    currencyType: value
                 };
             }
             return currency;
         });
         setCurrencies(updatedCurrencies);
-        console.log(currencies);
+    };
+    const handleCurrencyImageChange = (id, event) => {
+        const { value } = event.target;
+        const updatedCurrencies = currencies.map(currency => {
+            if (currency.id === id) {
+                return {
+                    ...currency,
+                    currencyImage: value
+                };
+            }
+            return currency;
+        });
+        setCurrencies(updatedCurrencies);
     };
     const addSpace = () => {
         const newId = spaces[spaces.length - 1].id + 1;
@@ -165,7 +176,7 @@ const CreatePage = () => {
                     </div>
                     <div>
                         <label htmlFor="game_rules">Rules:</label>
-                        <textarea name="rules" className="form-control text-primary rounded shadow border border-primary p-2 my-2 my-2" required id="game_rules" rows={5} />   
+                        <textarea name="rules" className="form-control text-primary rounded shadow border border-primary p-2 my-2 my-2" required id="game_rules" placeholder="Type your rules in point form like:&#10;- example rule 1&#10;- example rule 2" rows={5} />   
                     </div>
                     <h2>Currencies </h2>
                     {currencies.map(currency => (
@@ -176,14 +187,14 @@ const CreatePage = () => {
                                 placeholder="Currency Name"
                                 aria-label="Currency Name"
                                 name={`currency-name-${currency.id}`}
-                                onChange={(e) => handleCurrencyChange(currency.id, e)}
+                                onChange={(e) => handleCurrencyTypeChange(currency.id, e)}
                             />
                             <input
                                 type="file"
                                 className="form-control text-primary"
                                 aria-label="Currency Image"
                                 name={`currency-image-${currency.id}`}
-                                onChange={(e) => handleCurrencyChange(currency.id, e)}
+                                onChange={(e) => handleCurrencyImageChange(currency.id, e)}
                             />
                             <button
                                 className="btn btn-primary"

@@ -26,8 +26,7 @@ class CurrencySerializer(serializers.ModelSerializer):
         return currency
 
 class SpaceSerializer(serializers.ModelSerializer):
-    spaceBoardID = serializers.PrimaryKeyRelatedField(
-        queryset=BoardGame.objects.all())
+    spaceBoardID = serializers.PrimaryKeyRelatedField(queryset=BoardGame.objects.all())
     class Meta:
         model = BoardGameSpace
         fields = ['spaceName', 'spaceColor', 'spaceType', 'spaceValue', 'spaceBoardID']
@@ -38,25 +37,24 @@ class SpaceSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         space = BoardGameSpace.objects.create(**validated_data)
         space.save()
-        print("its being created..right?")
         print(validated_data, space, space.spaceValue)
         if space.spaceType == "Currency":
-            print(space.spaceValue)
             space.setPurpose(currency=space.spaceValue[0], score=space.spaceValue[1])
         elif space.spaceType == "Turn":
-            print(space.spaceValue)
             space.setPurpose(skip=space.spaceValue)
         elif space.spaceType == "Movement":
-            print(space.spaceValue)
             space.setPurpose(spaces=space.spaceValue)
         else:
-            print(space.spaceValue)
             space.spaceValue = ""
         return space
         
 class BoardGameSerializer(serializers.ModelSerializer):
-    currencies = CurrencySerializer(many=True)
-    spaces = SpaceSerializer(many=True)
+    currencies = CurrencySerializer(many=True, read_only=True)
+    spaces = SpaceSerializer(many=True, read_only=True)
     class Meta:
         model = BoardGame
-        fields = '__all__'
+        fields = ['title', 'desc', 'rules', 'publicity', 'spaces', 'currencies', 'creator', 'id']
+    
+    creator = serializers.SerializerMethodField()
+    def get_creator(self, obj):
+        return obj.creator.username

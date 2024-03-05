@@ -14,7 +14,7 @@ class BoardGame(models.Model):
 
 class Currency(models.Model):
     currencyType = models.TextField()
-    currencyImage = models.ImageField(blank=True)
+    currencyImage = models.ImageField(blank=True, upload_to='public')
     currencyBoardID = models.ForeignKey(BoardGame, on_delete=models.CASCADE)
 
     def __str__(self):

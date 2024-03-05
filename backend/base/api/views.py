@@ -64,6 +64,12 @@ def createGame(request):
         return Response({'message': 'Board game created successfully.'}, status=status.HTTP_201_CREATED)
 
 @api_view(['GET'])
-def homeView(request):
+def retrieveBoards(request):
     if request.method == "GET":
-        return Response({"games": BoardGame.objects.all()})
+        board_games = BoardGame.objects.all()
+        serializer = BoardGameSerializer(board_games, many=True)
+        currencies = Currency.objects.all()
+        curr_serializer = CurrencySerializer(currencies, many=True)
+        spaces = BoardGameSpace.objects.all()
+        space_serializer = SpaceSerializer(spaces, many=True)
+        return Response({'boards': serializer.data, 'currencies': curr_serializer.data, 'spaces': space_serializer.data})
