@@ -22,7 +22,6 @@ class CurrencySerializer(serializers.ModelSerializer):
         }
     
     def create(self, validated_data):
-        print(validated_data)
         currency = Currency.objects.create(**validated_data)
         return currency
 
@@ -38,15 +37,20 @@ class SpaceSerializer(serializers.ModelSerializer):
     
     def create(self, validated_data):
         space = BoardGameSpace.objects.create(**validated_data)
+        space.save()
+        print("its being created..right?")
+        print(validated_data, space, space.spaceValue)
         if space.spaceType == "Currency":
-            print(space, validated_data, space.spaceValue)
-            space.setPurpose(
-                currency=space.spaceValue[0], score=space.spaceValue[1])
+            print(space.spaceValue)
+            space.setPurpose(currency=space.spaceValue[0], score=space.spaceValue[1])
         elif space.spaceType == "Turn":
+            print(space.spaceValue)
             space.setPurpose(skip=space.spaceValue)
         elif space.spaceType == "Movement":
+            print(space.spaceValue)
             space.setPurpose(spaces=space.spaceValue)
         else:
+            print(space.spaceValue)
             space.spaceValue = ""
         return space
         

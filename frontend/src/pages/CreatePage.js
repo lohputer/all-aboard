@@ -1,11 +1,13 @@
 import React, {useState, useContext} from 'react'
 import AuthContext from '../context/AuthContext'
+import { useNavigate } from 'react-router-dom'
 
 const CreatePage = () => {
     const { user } = useContext(AuthContext);
     const [currencies, setCurrencies] = useState([{ id: 1, currencyType: '', currencyImage: null }]);
     const [spaces, setSpaces] = useState([{ id: 1, spaceName: '', spaceColor: null, spaceType: null, spaceValue: null }]);
     const [publicity, setPublicity] = useState(false);
+    const navigate = useNavigate()
     let createCustom = async (e) => {
         e.preventDefault();
         console.log({ user: user , title : e.target.title.value, desc : e.target.desc.value, rules : e.target.rules.value, publicity : publicity, currencies : currencies, spaces : spaces })
@@ -17,7 +19,11 @@ const CreatePage = () => {
             body: JSON.stringify({ user: user , title : e.target.title.value, desc : e.target.desc.value, rules : e.target.rules.value, publicity : publicity, currencies : currencies, spaces : spaces })
         });
         let data = await response.json();
-        console.log(data);
+        if (data == {'message': 'Board game created successfully.'}) {
+            navigate('/');
+        } else {
+            alert('oh dang something went wrong');
+        }
     }
     const addCurrency = () => {
         const newId = currencies[currencies.length - 1].id + 1;
@@ -257,7 +263,6 @@ const CreatePage = () => {
                                     { typeof space.spaceValue !== 'string' ? 
                                         <input
                                             type="number"
-                                            min={1}
                                             placeholder="How many spaces will they move?"
                                             className="form-control text-primary"
                                             aria-label="Space Value"

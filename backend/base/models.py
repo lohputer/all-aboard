@@ -17,19 +17,26 @@ class Currency(models.Model):
     currencyImage = models.ImageField(blank=True)
     currencyBoardID = models.ForeignKey(BoardGame, on_delete=models.CASCADE)
 
+    def __str__(self):
+        return f"{self.currencyBoardID} - {self.currencyType}"
 
 class BoardGameSpace(models.Model):
     spaceName = models.TextField()
     spaceColor = models.TextField(blank=True, null=True)
     spaceBoardID = models.ForeignKey(BoardGame, on_delete=models.CASCADE)
     spaceType = models.TextField()
-    spaceValue = None
+    spaceValue = models.JSONField()
 
+    def __str__(self):
+        return f"{self.spaceBoardID} - {self.spaceName}"
+    
     def setPurpose(self, **kwargs):
+        print(kwargs)
         if self.spaceType == "Currency":
-            self.spaceValue = {Currency.objects.get(
-                currencyType=kwargs["currency"]): kwargs["score"]}
+            self.spaceValue = {kwargs["currency"]: kwargs["score"]}
         elif self.spaceType == "Turn":
             self.spaceValue = kwargs["skip"]
         elif self.spaceType == "Movement":
             self.spaceValue = kwargs["spaces"]
+        else:
+            self.spaceValue = ""

@@ -35,7 +35,6 @@ def register_user(request):
             return Response({'message': 'User registered successfully'}, status=201)
         print(serializer.errors)
         return Response(serializer.errors, status=400) 
-            
 
 @api_view(['POST'])
 def createGame(request):
@@ -49,8 +48,6 @@ def createGame(request):
         )
         currencies_data = request.data.get("currencies", [])
         spaces_data = request.data.get("spaces", [])
-        currency_serializer = CurrencySerializer(data=currencies_data, many=True)
-        space_serializer = SpaceSerializer(data=spaces_data, many=True)
         for currency_data in currencies_data:
             currency_data['currencyBoardID'] = new_board.pk
             serializer = CurrencySerializer(data=currency_data)
@@ -63,9 +60,10 @@ def createGame(request):
             if not serializer.is_valid():
                 return Response({'message': 'Failed to create board game.', 'errors': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
             serializer.save()
-        currency_serializer.save()
-        space_serializer.save()
-        new_board.currencies.set(Currency.objects.all())
-        new_board.spaces.set(BoardGameSpace.objects.all())
         new_board.save()
         return Response({'message': 'Board game created successfully.'}, status=status.HTTP_201_CREATED)
+
+@api_view(['GET'])
+def homeView(request):
+    if request.method == "GET":
+        return Response({"games": BoardGame.objects.all()})

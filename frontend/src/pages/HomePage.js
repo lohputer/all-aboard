@@ -3,11 +3,10 @@ import AuthContext from '../context/AuthContext';
 
 const HomePage = () => {
     const { user } = useContext(AuthContext);
-
     return (
         <>
             {user && 
-                <div>
+                <div class="vw-100 row d-flex justify-content-center my-3">
                     <p>You are logged in to the homepage!</p>
                     <p>Name: {user.username} </p>
                 </div>
