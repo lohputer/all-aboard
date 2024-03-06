@@ -4,3 +4,4 @@ from .models import *
 admin.site.register(BoardGame)
 admin.site.register(Currency)
 admin.site.register(BoardGameSpace)
+admin.site.register(GameLayout)

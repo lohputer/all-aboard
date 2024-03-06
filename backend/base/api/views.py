@@ -3,7 +3,7 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
-from .serializer import UserSerializer, CurrencySerializer, SpaceSerializer, BoardGameSerializer
+from .serializer import UserSerializer, CurrencySerializer, SpaceSerializer, BoardGameSerializer, LayoutSerializer
 from django.contrib.auth.models import User
 from base.models import *
 from rest_framework import status
@@ -72,4 +72,6 @@ def retrieveBoards(request):
         curr_serializer = CurrencySerializer(currencies, many=True)
         spaces = BoardGameSpace.objects.all()
         space_serializer = SpaceSerializer(spaces, many=True)
-        return Response({'boards': serializer.data, 'currencies': curr_serializer.data, 'spaces': space_serializer.data})
+        layouts = GameLayout.objects.all()
+        layout_serializer = LayoutSerializer(layouts, many=True)
+        return Response({'boards': serializer.data, 'currencies': curr_serializer.data, 'spaces': space_serializer.data, 'layouts': layout_serializer.data})

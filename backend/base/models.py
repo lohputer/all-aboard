@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User 
+from django.contrib.postgres.fields import ArrayField
 
 class BoardGame(models.Model):
     creator = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -40,3 +41,7 @@ class BoardGameSpace(models.Model):
             self.spaceValue = kwargs["spaces"]
         else:
             self.spaceValue = ""
+
+class GameLayout(models.Model):
+    boardID = models.ForeignKey(BoardGame, on_delete=models.CASCADE)
+    layout = ArrayField(ArrayField(models.TextField()))

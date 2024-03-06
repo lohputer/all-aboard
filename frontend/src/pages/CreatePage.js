@@ -1,13 +1,13 @@
 import React, {useState, useContext} from 'react'
 import AuthContext from '../context/AuthContext'
-import { useNavigate } from 'react-router-dom'
 
 const CreatePage = () => {
     const { user } = useContext(AuthContext);
     const [currencies, setCurrencies] = useState([{ id: 1, currencyType: '', currencyImage: null }]);
-    const [spaces, setSpaces] = useState([{ id: 1, spaceName: '', spaceColor: null, spaceType: null, spaceValue: null }]);
+    const [spaces, setSpaces] = useState([{ id: 1, spaceName: 'Start', spaceColor: null, spaceType: "", spaceValue: '' }, { id: 2, spaceName: 'Finish', spaceColor: null, spaceType: "", spaceValue: '' }]);
     const [publicity, setPublicity] = useState(false);
-    const navigate = useNavigate()
+    const [dimensions, setDimensions] = useState([1, 1]);
+    const [layout, setLayout] = useState([[]]);
     let createCustom = async (e) => {
         e.preventDefault();
         console.log({ user: user , title : e.target.title.value, desc : e.target.desc.value, rules : e.target.rules.value, publicity : publicity, currencies : currencies, spaces : spaces })
@@ -223,16 +223,29 @@ const CreatePage = () => {
                                     placeholder="Space Name"
                                     aria-label="Space Name"
                                     name={`space-name-${space.id}`}
+                                    defaultValue={space.spaceName}
                                      onChange={(e)=>updateSpaceName(space.id, e)}
                                 />
-                                <select className="form-select" aria-label="Default select example" onChange={(e)=>updateSpaceType(space.id, e)}>
-                                    <option value="" >Select a Function</option>
+                                <select defaultValue={
+                                    !space.spaceValue && (
+                                        (space.spaceType == "Currency") ?
+                                            (parseInt(space.spaceValue[1]) >= 0) ? 
+                                                "Add"
+                                            : 
+                                                "Remove"
+                                        : (space.spaceType == "Movement") ? 
+                                            (isNaN(parseInt(space.spaceValue))) ? "MoveTo" : "Movement"
+                                        : (space.spaceType == "Turn") ? 
+                                            "Turn"
+                                        : "Nothing"
+                                    )
+                                } className="form-select" aria-label="Default select example" onChange={(e)=>updateSpaceType(space.id, e)}>
+                                    <option value="Nothing" >Nothing</option>
                                     <option value="Add">Add (amt) to (currency)</option>
                                     <option value="Remove">Remove (amt) from (currency)</option>
                                     <option value="Movement">Move (amt) spaces</option>
                                     <option value="MoveTo">Move to (space)</option>
                                     <option value="Turn">Skip Turn</option>
-                                    <option value="Nothing">Nothing</option>
                                 </select>
                                 <button
                                     className="btn btn-primary"
@@ -296,6 +309,39 @@ const CreatePage = () => {
                         </div>
                     ))}
 
+                    <h1>Create your own layout!</h1>
+                    <input
+                        type="number"
+                        min={1}
+                        className="form-control text-primary"
+                        placeholder="Rows"
+                        aria-label="Rows"
+                        onChange={(e)=>setDimensions(dims => {
+                            if (e.target.value != 0) {
+                                dims = e.target.value;
+                            }
+                        })}
+                    />
+                    <input
+                        type="number"
+                        min={1}
+                        className="form-control text-primary"
+                        placeholder="Columns"
+                        aria-label="Columns"
+                        onChange={(e)=>setDimensions(dims => {
+                            if (e.target.value != 0) {
+                                console.log(dims);
+                                dims = e.target.value;
+                            }
+                        })}
+                    />
+                    <table>
+                        <tbody>
+                            <tr>
+                                <td><p>test..</p></td>
+                            </tr>
+                        </tbody>
+                    </table>
                     <div className="form-check">
                         <input className="form-check-input" name="publicity" type="checkbox" value="" id="publicity" onChange={() => setPublicity(!publicity)} />
                         <label className="form-check-label" htmlFor="publicity">
