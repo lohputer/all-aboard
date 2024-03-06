@@ -21,6 +21,7 @@ const CreatePage = () => {
     const spaceIds = spaces.map(space => space.id);
     let createCustom = async (e) => {
         e.preventDefault();
+        
         console.log({ user: user , title : e.target.title.value, desc : e.target.desc.value, rules : e.target.rules.value, publicity : publicity, currencies : currencies, spaces : spaces })
         const response = await fetch('http://127.0.0.1:8000/api/create/', {
             method: 'POST',
