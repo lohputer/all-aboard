@@ -39,7 +39,9 @@ class BoardGameSpace(models.Model):
             self.spaceValue = kwargs["skip"]
         elif self.spaceType == "Movement":
             self.spaceValue = kwargs["spaces"]
-        else:
+        elif self.spaceType == "Start":
+            self.spaceValue = "Start"
+        else: 
             self.spaceValue = ""
 
 class GameLayout(models.Model):

@@ -1,13 +1,23 @@
-import React, {useState, useContext} from 'react'
+import React, {useState, useContext, useEffect} from 'react'
 import AuthContext from '../context/AuthContext'
 
 const CreatePage = () => {
     const { user } = useContext(AuthContext);
     const [currencies, setCurrencies] = useState([{ id: 1, currencyType: '', currencyImage: null }]);
-    const [spaces, setSpaces] = useState([{ id: 1, spaceName: 'Start', spaceColor: null, spaceType: "", spaceValue: '' }, { id: 2, spaceName: 'Finish', spaceColor: null, spaceType: "", spaceValue: '' }]);
+    const [spaces, setSpaces] = useState([{id: 0, spaceName: '', spaceColor : "rgb(255,255,255)", spaceType: "", spaceValue: ""}, { id: 1, spaceName: 'Start', spaceColor: null, spaceType: "Start", spaceValue: 'Start' }, { id: 2, spaceName: 'Finish', spaceColor: null, spaceType: "", spaceValue: '' }]);
     const [publicity, setPublicity] = useState(false);
-    const [dimensions, setDimensions] = useState([1, 1]);
-    const [layout, setLayout] = useState([[]]);
+    const [layout, setLayout] = useState([
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        ]);
     let createCustom = async (e) => {
         e.preventDefault();
         console.log({ user: user , title : e.target.title.value, desc : e.target.desc.value, rules : e.target.rules.value, publicity : publicity, currencies : currencies, spaces : spaces })
@@ -31,6 +41,7 @@ const CreatePage = () => {
         setCurrencies([...currencies, { id: newId, currencyType: '', currencyImage: null }]);
     };
     const removeCurrency = (id) => {
+        console.log(id);
         if (currencies.length > 1) {
             setCurrencies(currencies.filter(currency => currency.id !== id));
         }
@@ -66,9 +77,20 @@ const CreatePage = () => {
         setSpaces([...spaces, { id: newId, spaceColor: null, spaceType: null, spaceValue: null }]);
     };
     const removeSpace = (id) => {
-        if (spaces.length > 1) {
+        console.log(id);
+        if (spaces.length > 2) {
+            console.log(spaces.filter(space => space.id !== id));
             setSpaces(spaces.filter(space => space.id !== id));
         }
+        const newLayout = [...layout];
+        for (let i=0; i<newLayout.length; i++) {
+            for (let j=0; j<newLayout[i].length; j++) {
+                if (newLayout[i][j] == id) {
+                    newLayout[i][j] = "0";
+                }
+            }
+        }
+        setLayout(newLayout);
     };
     const updateSpaceName = (id, event) => {
         const { value } = event.target;
@@ -161,6 +183,23 @@ const CreatePage = () => {
         setSpaces(updatedSpaces);
         console.log(spaces);
     }
+    const updateLayout = (rowIndex, cellIndex) => {
+        const newLayout = [...layout];
+        let cell = newLayout[rowIndex][cellIndex];
+        let nextSpaceId = null;
+        for (let i = 0; i < spaces.length; i++) {
+            if (spaces[i].id > cell) {
+                if (nextSpaceId === null || spaces[i].id < nextSpaceId) {
+                    nextSpaceId = spaces[i].id;
+                }
+            }
+        }
+        if (nextSpaceId === null) { 
+            nextSpaceId = spaces[0].id;
+        }
+        newLayout[rowIndex][cellIndex] = nextSpaceId;
+        setLayout(newLayout);
+    };
     return (
         <div className="vw-100 justify-content-center align-items-center row d-flex">
             <form className="row d-flex mt-4 m-2 col-10 col-sm-10 col-md-8 col-lg-6" onSubmit={createCustom}>
@@ -209,12 +248,12 @@ const CreatePage = () => {
                                 type="button"
                                 onClick={() => removeCurrency(currency.id)}
                             >
-                                -
+                                - 
                             </button>
                         </div>
                     ))}
                     <h2>Spaces</h2>
-                    {spaces.map(space => (
+                    {spaces.map(space => (space.id != 0 && 
                         <div className="form-group border border-primary rounded mb-3">
                             <div className="input-group">
                                 <input
@@ -237,9 +276,12 @@ const CreatePage = () => {
                                             (isNaN(parseInt(space.spaceValue))) ? "MoveTo" : "Movement"
                                         : (space.spaceType == "Turn") ? 
                                             "Turn"
-                                        : "Nothing"
+                                        : (space.spaceType == "Start") ? 
+                                            "Start" 
+                                        : 
+                                            "Nothing"
                                     )
-                                } className="form-select" aria-label="Default select example" onChange={(e)=>updateSpaceType(space.id, e)}>
+                                } disabled={space.id === 1 && true} className="form-select" aria-label="Default select example" onChange={(e)=>updateSpaceType(space.id, e)}>
                                     <option value="Nothing" >Nothing</option>
                                     <option value="Add">Add (amt) to (currency)</option>
                                     <option value="Remove">Remove (amt) from (currency)</option>
@@ -251,16 +293,15 @@ const CreatePage = () => {
                                     className="btn btn-primary"
                                     type="button"
                                     onClick={addSpace}
-                                    disabled={space.id !== spaces[spaces.length - 1].id}
                                 >
                                     +
                                 </button>
-                                <button
+                                <button disabled={space.id === 1 && true} 
                                     className="btn btn-danger"
                                     type="button"
                                     onClick={() => removeSpace(space.id)}
                                 >
-                                    -
+                                    - 
                                 </button>
                             </div>
                             {space.spaceType === "Currency" ?
@@ -310,35 +351,22 @@ const CreatePage = () => {
                     ))}
 
                     <h1>Create your own layout!</h1>
-                    <input
-                        type="number"
-                        min={1}
-                        className="form-control text-primary"
-                        placeholder="Rows"
-                        aria-label="Rows"
-                        onChange={(e)=>setDimensions(dims => {
-                            if (e.target.value) {
-                                dims[0] = e.target.value;
-                            }
-                        })}
-                    />
-                    <input
-                        type="number"
-                        min={1}
-                        className="form-control text-primary"
-                        placeholder="Columns"
-                        aria-label="Columns"
-                        onChange={(e)=>setDimensions(dims => {
-                            if (e.target.value) {
-                                dims[1] = e.target.value;
-                            }
-                        })}
-                    />
-                    <table>
-                        <tbody>
-                            <tr>
-                                <td><p>test..</p></td>
-                            </tr>
+                    <table className="table table-striped border">
+                        <tbody className="border">
+                            {layout.map((row, rowIndex) => (
+                                <tr key={rowIndex}>
+                                    {row.map((cell, cellIndex) => (
+                                        spaces[cell] ? 
+                                            <td key={cellIndex} className="border" onClick={() => updateLayout(rowIndex, cellIndex)}>
+                                                {spaces[cell].spaceName}
+                                            </td>
+                                        : 
+                                            <td key={cellIndex} className="border" onClick={() => updateLayout(rowIndex, cellIndex)}>
+                                                
+                                            </td>
+                                    ))}
+                                </tr>
+                            ))}
                         </tbody>
                     </table>
                     <div className="form-check">

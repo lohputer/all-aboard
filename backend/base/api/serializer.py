@@ -43,6 +43,8 @@ class SpaceSerializer(serializers.ModelSerializer):
             space.setPurpose(skip=space.spaceValue)
         elif space.spaceType == "Movement":
             space.setPurpose(spaces=space.spaceValue)
+        elif space.spaceType == "Start":
+            space.setPurpose()
         else:
             space.spaceValue = ""
         return space
