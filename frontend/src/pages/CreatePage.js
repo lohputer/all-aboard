@@ -18,6 +18,7 @@ const CreatePage = () => {
             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
         ]);
+    const spaceIds = spaces.map(space => space.id);
     let createCustom = async (e) => {
         e.preventDefault();
         console.log({ user: user , title : e.target.title.value, desc : e.target.desc.value, rules : e.target.rules.value, publicity : publicity, currencies : currencies, spaces : spaces })
@@ -41,9 +42,9 @@ const CreatePage = () => {
         setCurrencies([...currencies, { id: newId, currencyType: '', currencyImage: null }]);
     };
     const removeCurrency = (id) => {
-        console.log(id);
         if (currencies.length > 1) {
-            setCurrencies(currencies.filter(currency => currency.id !== id));
+            const updatedCurrencies = currencies.filter(currency => currency.id !== id);
+            setCurrencies(updatedCurrencies);
         }
     };
     const handleCurrencyTypeChange = (id, event) => {
@@ -77,14 +78,13 @@ const CreatePage = () => {
         setSpaces([...spaces, { id: newId, spaceColor: null, spaceType: null, spaceValue: null }]);
     };
     const removeSpace = (id) => {
-        console.log(id);
         if (spaces.length > 2) {
-            console.log(spaces.filter(space => space.id !== id));
-            setSpaces(spaces.filter(space => space.id !== id));
+            const updatedSpaces = spaces.filter(space => space.id !== id);
+            setSpaces(updatedSpaces);
         }
         const newLayout = [...layout];
-        for (let i=0; i<newLayout.length; i++) {
-            for (let j=0; j<newLayout[i].length; j++) {
+        for (let i = 0; i < newLayout.length; i++) {
+            for (let j = 0; j < newLayout[i].length; j++) {
                 if (newLayout[i][j] == id) {
                     newLayout[i][j] = "0";
                 }
@@ -111,17 +111,25 @@ const CreatePage = () => {
         const updatedSpaces = spaces.map(space => {
             if (space.id === id) {
                 if (["Add", "Remove"].includes(value)) {
-                    return {
-                        ...space,
-                        spaceType: "Currency",
-                        spaceValue: ["", 0]
+                    if (value === "Add") {
+                        return {
+                            ...space,
+                            spaceType: "Currency",
+                            spaceValue: ["", 1]
+                        }
+                    } else {
+                        return {
+                            ...space,
+                            spaceType: "Currency",
+                            spaceValue: ["", -1]
+                        }                        
                     }
                 } else if (["Movement", "MoveTo"].includes(value)) {
                     if (value == "Movement") {
                         return {
                             ...space,
                             spaceType: "Movement",
-                            spaceValue: 0
+                            spaceValue: 1
                         }
                     } else {
                         return {
@@ -149,7 +157,8 @@ const CreatePage = () => {
         setSpaces(updatedSpaces);
     }
     const updateSpaceValue = (id, event) => {
-        console.log(event.target.value, typeof event.target.value)
+        let value = event.target.value
+        console.log(value, typeof event.target.value)
         const updatedSpaces = spaces.map(space => {
             if (space.id === id) {
                 if (space.spaceType === "Currency") { 
@@ -185,19 +194,15 @@ const CreatePage = () => {
     }
     const updateLayout = (rowIndex, cellIndex) => {
         const newLayout = [...layout];
+        console.log(newLayout);
+        console.log(spaceIds);
+        console.log(spaces);
         let cell = newLayout[rowIndex][cellIndex];
-        let nextSpaceId = null;
-        for (let i = 0; i < spaces.length; i++) {
-            if (spaces[i].id > cell) {
-                if (nextSpaceId === null || spaces[i].id < nextSpaceId) {
-                    nextSpaceId = spaces[i].id;
-                }
-            }
+        console.log(spaceIds.indexOf(cell)+1, spaceIds.length, spaceIds[spaceIds.indexOf(cell)+1]);
+        if (spaceIds.indexOf(cell)+1 >= spaceIds.length) {
+            cell = "";
         }
-        if (nextSpaceId === null) { 
-            nextSpaceId = spaces[0].id;
-        }
-        newLayout[rowIndex][cellIndex] = nextSpaceId;
+        newLayout[rowIndex][cellIndex] = spaceIds[spaceIds.indexOf(cell)+1];
         setLayout(newLayout);
     };
     return (
@@ -225,7 +230,7 @@ const CreatePage = () => {
                                 className="form-control text-primary"
                                 placeholder="Currency Name"
                                 aria-label="Currency Name"
-                                name={`currency-name-${currency.id}`}
+                                value={currency.currencyType}
                                 onChange={(e) => handleCurrencyTypeChange(currency.id, e)}
                             />
                             <input
@@ -233,6 +238,7 @@ const CreatePage = () => {
                                 className="form-control text-primary"
                                 aria-label="Currency Image"
                                 name={`currency-image-${currency.id}`}
+                                value={currency.currencyImage ? currency.currencyImage : ""}
                                 onChange={(e) => handleCurrencyImageChange(currency.id, e)}
                             />
                             <button
@@ -262,13 +268,13 @@ const CreatePage = () => {
                                     placeholder="Space Name"
                                     aria-label="Space Name"
                                     name={`space-name-${space.id}`}
-                                    defaultValue={space.spaceName}
+                                    value={space.spaceName}
                                      onChange={(e)=>updateSpaceName(space.id, e)}
                                 />
-                                <select defaultValue={
-                                    !space.spaceValue && (
+                                <select value={
+                                    space.spaceValue && (
                                         (space.spaceType == "Currency") ?
-                                            (parseInt(space.spaceValue[1]) >= 0) ? 
+                                            (parseInt(space.spaceValue[1]) > 0) ? 
                                                 "Add"
                                             : 
                                                 "Remove"
@@ -306,8 +312,8 @@ const CreatePage = () => {
                             </div>
                             {space.spaceType === "Currency" ?
                                 <div className="input-group">
-                                    <select className="form-select" onChange={(e) => updateSpaceValue(space.id, e)}>
-                                        <option value="" >Please choose a currency.</option>
+                                    <select value={space.spaceValue[0]} className="form-select" onChange={(e) => updateSpaceValue(space.id, e)}>
+                                        <option value="">Please choose a currency.</option>
                                         {currencies.map(currency => currency.currencyType != '' && (
                                             <option value={currency.currencyType}>{currency.currencyType}</option>
                                         ))}
@@ -316,10 +322,15 @@ const CreatePage = () => {
                                         <input
                                             type="number"
                                             className="form-control text-primary"
-                                            placeholder={`How much ${space.spaceValue[0]} will they get? (negative for remove)`}
                                             aria-label="Space Value"
                                             name={`space-value-${space.id}`}
-                                            onChange={(e)=>updateSpaceValue(space.id, e)}
+                                            value={space.spaceValue[1]}
+                                            onChange={(e)=>{
+                                                if (e.target.value === "") {
+                                                    e.target.value = 0;
+                                                }
+                                                updateSpaceValue(space.id, e);
+                                            }}
                                         />
                                     }
                                 </div>
@@ -332,10 +343,11 @@ const CreatePage = () => {
                                             className="form-control text-primary"
                                             aria-label="Space Value"
                                             name={`space-value-${space.id}`}
+                                            value={space.spaceValue}
                                             onChange={(e)=>updateSpaceValue(space.id, e)}
                                         />
                                     : 
-                                        <select className="form-select" onChange={(e) => updateSpaceValue(space.id, e)}>
+                                        <select value={space.spaceValue} className="form-select" onChange={(e) => updateSpaceValue(space.id, e)}>
                                             <option value="" >Please choose a space.</option>
                                             {spaces.map(space2 => space2.spaceName != space.spaceName && (
                                                 <option key={space2.id} value={space2.spaceName}>{space2.spaceName}</option>
@@ -356,13 +368,13 @@ const CreatePage = () => {
                             {layout.map((row, rowIndex) => (
                                 <tr key={rowIndex}>
                                     {row.map((cell, cellIndex) => (
-                                        spaces[cell] ? 
+                                        spaces[spaceIds.indexOf(cell)] ? 
                                             <td key={cellIndex} className="border" onClick={() => updateLayout(rowIndex, cellIndex)}>
-                                                {spaces[cell].spaceName}
+                                                {spaces[spaceIds.indexOf(cell)].spaceName}
                                             </td>
                                         : 
                                             <td key={cellIndex} className="border" onClick={() => updateLayout(rowIndex, cellIndex)}>
-                                                
+
                                             </td>
                                     ))}
                                 </tr>
