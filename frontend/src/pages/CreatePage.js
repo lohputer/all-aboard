@@ -317,8 +317,8 @@ const CreatePage = () => {
                         placeholder="Rows"
                         aria-label="Rows"
                         onChange={(e)=>setDimensions(dims => {
-                            if (e.target.value != 0) {
-                                dims = e.target.value;
+                            if (e.target.value) {
+                                dims[0] = e.target.value;
                             }
                         })}
                     />
@@ -329,9 +329,8 @@ const CreatePage = () => {
                         placeholder="Columns"
                         aria-label="Columns"
                         onChange={(e)=>setDimensions(dims => {
-                            if (e.target.value != 0) {
-                                console.log(dims);
-                                dims = e.target.value;
+                            if (e.target.value) {
+                                dims[1] = e.target.value;
                             }
                         })}
                     />
