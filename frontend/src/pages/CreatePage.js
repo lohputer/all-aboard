@@ -4,7 +4,7 @@ import AuthContext from '../context/AuthContext'
 const CreatePage = () => {
     const { user } = useContext(AuthContext);
     const [currencies, setCurrencies] = useState([{ id: 1, currencyType: '', currencyImage: null }]);
-    const [spaces, setSpaces] = useState([{id: 0, spaceName: '', spaceColor : "rgb(255,255,255)", spaceType: "", spaceValue: ""}, { id: 1, spaceName: 'Start', spaceColor: null, spaceType: "Start", spaceValue: 'Start' }, { id: 2, spaceName: 'Finish', spaceColor: null, spaceType: "", spaceValue: '' }]);
+    const [spaces, setSpaces] = useState([{id: 0, spaceName: '.', spaceColor : "rgb(255,255,255)", spaceType: "", spaceValue: ""}, { id: 1, spaceName: 'Start', spaceColor: null, spaceType: "Start", spaceValue: 'Start' }, { id: 2, spaceName: 'Finish', spaceColor: null, spaceType: "", spaceValue: '' }]);
     const [publicity, setPublicity] = useState(false);
     const [layout, setLayout] = useState([
             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -21,21 +21,42 @@ const CreatePage = () => {
     const spaceIds = spaces.map(space => space.id);
     let createCustom = async (e) => {
         e.preventDefault();
-        
-        console.log({ user: user , title : e.target.title.value, desc : e.target.desc.value, rules : e.target.rules.value, publicity : publicity, currencies : currencies, spaces : spaces })
-        const response = await fetch('http://127.0.0.1:8000/api/create/', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ user: user , title : e.target.title.value, desc : e.target.desc.value, rules : e.target.rules.value, publicity : publicity, currencies : currencies, spaces : spaces })
-        });
-        let data = await response.json();
-        console.log(data);
-        if (data['message'] === 'Board game created successfully.') {
-            window.location = "/";
-        } else {
-            alert('oh dang something went wrong');
+        let convertedLayout = layout;
+        for (let i=0; i<convertedLayout.length; i++) {
+            for (let j=0; j<convertedLayout.length; j++) {
+                convertedLayout[i][j] = spaces[spaceIds.indexOf(convertedLayout[i][j])].spaceName;
+            }
+        }
+        console.log(layout);
+        console.log({ user: user , title : e.target.title.value, desc : e.target.desc.value, rules : e.target.rules.value, publicity : publicity, currencies : currencies, spaces : spaces, layout : convertedLayout });
+        try {
+            const response = await fetch('http://127.0.0.1:8000/api/create/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ user: user , title : e.target.title.value, desc : e.target.desc.value, rules : e.target.rules.value, publicity : publicity, currencies : currencies, spaces : spaces, layout: convertedLayout })
+            });
+            let data = await response.json();
+            console.log(data);
+            if (data['message'] === 'Board game created successfully.') {
+                window.location = "/";
+            } else {
+                alert('oh dang something went wrong');
+            }
+        } catch (error) {
+            console.log(error);
+            for (let i=0; i<layout.length; i++) {
+                for (let j=0; j<layout.length; j++) {
+                    for (let k=0; k<spaces.length; k++) {
+                        if (layout[i][j] == spaces[k].spaceName) {
+                            layout[i][j] = spaces[k].id;
+                            break;
+                        }
+                    }
+                    
+                }
+            }
         }
     }
     const addCurrency = () => {

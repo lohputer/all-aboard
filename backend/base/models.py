@@ -25,8 +25,8 @@ class BoardGameSpace(models.Model):
     spaceName = models.TextField()
     spaceColor = models.TextField(blank=True, null=True)
     spaceBoardID = models.ForeignKey(BoardGame, on_delete=models.CASCADE)
-    spaceType = models.TextField()
-    spaceValue = models.JSONField()
+    spaceType = models.TextField(default="", blank=True, null=True)
+    spaceValue = models.JSONField(blank=True, null=True)
 
     def __str__(self):
         return f"{self.spaceBoardID} - {self.spaceName}"
@@ -45,5 +45,8 @@ class BoardGameSpace(models.Model):
             self.spaceValue = ""
 
 class GameLayout(models.Model):
+    layout = models.JSONField(blank=True, null=True)
     boardID = models.ForeignKey(BoardGame, on_delete=models.CASCADE)
-    layout = ArrayField(ArrayField(models.TextField()))
+
+    def __str__(self):
+        return f"{self.boardID} Layout"

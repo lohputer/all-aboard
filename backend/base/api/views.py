@@ -50,6 +50,7 @@ def createGame(request):
         spaces_data = request.data.get("spaces", [])
         for currency_data in currencies_data:
             currency_data['currencyBoardID'] = new_board.pk
+            print(currency_data)
             serializer = CurrencySerializer(data=currency_data)
             if not serializer.is_valid():
                 return Response({'message': 'Failed to create board game.', 'errors': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
@@ -59,6 +60,13 @@ def createGame(request):
             serializer = SpaceSerializer(data=space_data)
             if not serializer.is_valid():
                 return Response({'message': 'Failed to create board game.', 'errors': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+            serializer.save()
+        layout_data = {"layout": request.data["layout"]}
+        layout_data["boardID"] = new_board.pk
+        serializer = LayoutSerializer(data=layout_data)
+        if not serializer.is_valid():
+            return Response({'message': 'Failed to create board game.', 'errors': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+        else:
             serializer.save()
         new_board.save()
         return Response({'message': 'Board game created successfully.'}, status=status.HTTP_201_CREATED)
