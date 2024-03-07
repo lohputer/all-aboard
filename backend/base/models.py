@@ -12,7 +12,6 @@ class BoardGame(models.Model):
     def __str__(self):
         return f"{self.creator} - {self.title}"
 
-
 class Currency(models.Model):
     currencyType = models.TextField()
     currencyImage = models.ImageField(blank=True, upload_to='public')
@@ -50,3 +49,7 @@ class GameLayout(models.Model):
 
     def __str__(self):
         return f"{self.boardID} Layout"
+    
+class Profile(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    profilePic = models.ImageField(blank=True, upload_to='public/images')
