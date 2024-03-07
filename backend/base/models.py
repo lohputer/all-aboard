@@ -1,14 +1,20 @@
 from django.db import models
 from django.contrib.auth.models import User 
-from django.contrib.postgres.fields import ArrayField
 
+class UserProfile(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=False)
+    profilePic = models.ImageField(blank=True, upload_to='public/images')
+    desc = models.TextField() 
+    def __str__(self):
+        return f"{self.user} profile"
+    
 class BoardGame(models.Model):
     creator = models.ForeignKey(User, on_delete=models.CASCADE)
+    profile = models.ForeignKey(UserProfile, on_delete=models.CASCADE, null=True)
     title = models.CharField(max_length=50)
     desc = models.TextField()
     rules = models.TextField()
     publicity = models.BooleanField(default=True)
-
     def __str__(self):
         return f"{self.creator} - {self.title}"
 
@@ -49,7 +55,3 @@ class GameLayout(models.Model):
 
     def __str__(self):
         return f"{self.boardID} Layout"
-    
-class Profile(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    profilePic = models.ImageField(blank=True, upload_to='public/images')

@@ -1,6 +1,6 @@
-import React, {useState, useContext} from 'react'
+import React, {useContext} from 'react'
 import AuthContext from '../context/AuthContext'
-import { Routes, Route, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import '../App.css'
 
 const GamePage = () => {

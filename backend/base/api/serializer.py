@@ -66,3 +66,8 @@ class BoardGameSerializer(serializers.ModelSerializer):
     creator = serializers.SerializerMethodField()
     def get_creator(self, obj):
         return obj.creator.username
+
+class ProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserProfile
+        fields = ['user', 'profilePic', 'desc']

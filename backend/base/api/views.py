@@ -3,7 +3,7 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
-from .serializer import UserSerializer, CurrencySerializer, SpaceSerializer, BoardGameSerializer, LayoutSerializer
+from .serializer import UserSerializer, CurrencySerializer, SpaceSerializer, BoardGameSerializer, LayoutSerializer, ProfileSerializer
 from django.contrib.auth.models import User
 from base.models import *
 from rest_framework import status
@@ -32,6 +32,14 @@ def register_user(request):
         serializer = UserSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
+            serializer = ProfileSerializer(data={
+                "user" : User.objects.get(username=request.data['username']),
+                "profilePic" : "",
+                "desc" : f"Hi! This is {request.data['username']}!"
+            })
+            if not serializer.is_valid():
+                return Response({'message': 'Failed to create profile.', 'errors': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+            serializer.save()  
             return Response({'message': 'User registered successfully'}, status=201)
         print(serializer.errors)
         return Response(serializer.errors, status=400) 
@@ -41,6 +49,7 @@ def createGame(request):
     if request.method == "POST":
         new_board = BoardGame.objects.create(
             creator=User.objects.get(username=request.data["user"]["username"]),
+            profile=UserProfile.objects.get(user=User.objects.get(username=request.data["user"]["username"])),
             title=request.data["title"],
             desc=request.data["desc"],
             rules=request.data["rules"],
@@ -83,3 +92,15 @@ def retrieveBoards(request):
         layouts = GameLayout.objects.all()
         layout_serializer = LayoutSerializer(layouts, many=True)
         return Response({'boards': serializer.data, 'currencies': curr_serializer.data, 'spaces': space_serializer.data, 'layouts': layout_serializer.data})
+
+@api_view(['POST'])
+def retrieveProfile(request):
+    if request.method == "POST":
+        profile = UserProfile.objects.get(
+            user=User.objects.get(username=request.data['user']))
+        serializer = ProfileSerializer(profile)
+        print(serializer.data)
+        board_games = BoardGame.objects.filter(
+            creator = User.objects.get(username=request.data['user']))
+        gamesSerializer = BoardGameSerializer(board_games, many=True)
+        return Response({'profile': serializer.data, 'games': gamesSerializer.data})

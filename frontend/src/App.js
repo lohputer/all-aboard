@@ -6,6 +6,7 @@ import CreatePage from './pages/CreatePage'
 import Header from './components/Header'
 import PrivateRoute from './utils/PrivateRoute'
 import GamePage from './pages/GamePage'
+import ProfilePage from './pages/ProfilePage'
 import { AuthProvider } from './context/AuthContext'
 
 function App() {
@@ -19,6 +20,7 @@ function App() {
                     <Route path="/login" element={<LoginPage/>}/>
                     <Route path="/register" element={<RegisterPage/>}/>
                     <Route exact path="/game/:gameId" element={<GamePage/>}/>
+                    <Route exact path="/profile/:username" element={<ProfilePage/>}/>
                     <Route path="/create" element={<PrivateRoute><CreatePage/></PrivateRoute>}/>
                 </Routes>
                 </AuthProvider>
