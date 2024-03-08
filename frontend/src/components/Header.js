@@ -27,14 +27,16 @@ const Header = () => {
     return (
         <nav class="navbar navbar-default navbar-expand-sm navbar-dark">
             <div class="container-fluid">
-                <div class="navbar-brand">
-                    <span class="text-light"><Link to="/">All-ABoard</Link></span>
-                        {profileData['profile']['profilePic'] ? (
-                            <img className="m-2" width="50" id="profilePic" src={`../images/${profileData.profile.profilePic.replace("frontend/public/images/", "")}`} alt="Profile Pic" />
-                        ) : (
-                            <img className="m-2" width="50" id="profilePic" src="https://www.shutterstock.com/image-vector/blank-avatar-photo-place-holder-600nw-1095249842.jpg" alt="Default Avatar" />
-                        )}
-                </div>
+                <Link class="navbar-brand d-inline" to="/">
+                    <h1 class="text-light">
+                    All-ABoard
+                    {profileData['profile']['profilePic'] ? (
+                        <img className="m-2" width="50" id="profilePic" src={`../images/${profileData.profile.profilePic.replace("frontend/public/images/", "")}`} alt="Profile Pic" />
+                    ) : (
+                        <img className="m-2" width="50" id="profilePic" src="https://www.shutterstock.com/image-vector/blank-avatar-photo-place-holder-600nw-1095249842.jpg" alt="Default Avatar" />
+                    )}
+                    </h1>
+                </Link>
                 <div class="navbar-nav">
                     <ul class="navbar-nav d-flex">
                         {!user ? 
