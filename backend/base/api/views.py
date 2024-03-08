@@ -33,8 +33,8 @@ def register_user(request):
         if serializer.is_valid():
             serializer.save()
             serializer = ProfileSerializer(data={
-                "user" : User.objects.get(username=request.data['username']),
-                "profilePic" : "",
+                "user" : User.objects.get(username=request.data['username']).pk,
+                "profilePic" : None,
                 "desc" : f"Hi! This is {request.data['username']}!"
             })
             if not serializer.is_valid():
@@ -97,10 +97,18 @@ def retrieveBoards(request):
 def retrieveProfile(request):
     if request.method == "POST":
         profile = UserProfile.objects.get(
-            user=User.objects.get(username=request.data['user']))
+            user=User.objects.get(username=request.data['user']).pk)
         serializer = ProfileSerializer(profile)
         print(serializer.data)
         board_games = BoardGame.objects.filter(
             creator = User.objects.get(username=request.data['user']))
         gamesSerializer = BoardGameSerializer(board_games, many=True)
         return Response({'profile': serializer.data, 'games': gamesSerializer.data})
+
+@api_view(['POST'])
+def editProfile(request):
+    if request.method == "POST":
+        profile = UserProfile.objects.get(
+            user=User.objects.get(username=request.data['user']).pk)
+        serializer = ProfileSerializer(profile)
+        return Response({'profile': serializer.data})

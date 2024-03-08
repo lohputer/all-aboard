@@ -71,3 +71,7 @@ class ProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserProfile
         fields = ['user', 'profilePic', 'desc']
+
+    user = serializers.SerializerMethodField()
+    def get_user(self, obj):
+        return obj.user.username

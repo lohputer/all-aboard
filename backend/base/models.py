@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 
 class UserProfile(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=False)
-    profilePic = models.ImageField(blank=True, upload_to='public/images')
+    profilePic = models.ImageField(blank=True, null=True, upload_to='public/images')
     desc = models.TextField() 
     def __str__(self):
         return f"{self.user} profile"

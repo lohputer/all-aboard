@@ -52,3 +52,9 @@ table td {
     aspect-ratio: 1/1;
     overflow: hidden;
 }
+
+#profilePic {
+    border-radius: 50%;
+    aspect-ratio: 1/1;
+    padding: 0;
+}
