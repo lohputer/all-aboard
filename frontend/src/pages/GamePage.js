@@ -28,7 +28,7 @@ const GamePage = () => {
                             <span className="m-2">{curr.currencyType}</span>
                             {curr.currencyImage &&
                                 <img 
-                                    src={`../${curr.currencyImage.replace("frontend/public/", "")}`}  
+                                    src={`http://127.0.0.1:8000${curr.currencyImage}`}  
                                     alt="Currency Icon" 
                                 />
                             }
@@ -43,7 +43,7 @@ const GamePage = () => {
                         </tr>
                     </thead>
                     <tbody>
-                        {spaces.map(space => (
+                        {spaces.map(space => space.spaceName != "." && (
                             <tr>
                                 <td>{space.spaceName}</td>
                                 <td>{space.spaceType == "Currency" ? 

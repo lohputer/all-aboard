@@ -5,6 +5,7 @@ from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
 from .serializer import UserSerializer, CurrencySerializer, SpaceSerializer, BoardGameSerializer, LayoutSerializer, ProfileSerializer
 from django.contrib.auth.models import User
+import json
 from base.models import *
 from rest_framework import status
 
@@ -12,75 +13,91 @@ class UserTokenSerializer(TokenObtainPairSerializer):
     @classmethod
     def get_token(cls, user):
         token = super().get_token(user)
-        token['username'] = user.username
+        token["username"] = user.username
         return token
     
 class ObtainTokenView(TokenObtainPairView):
     serializer_class = UserTokenSerializer
     
-@api_view(['GET'])
+@api_view(["GET"])
 def get_routes(request):
    routes = [
-       '/api/token',
-       '/api/token/refresh'
+       "/api/token",
+       "/api/token/refresh"
    ]
    return Response(routes)
 
-@api_view(['POST'])
+@api_view(["POST"])
 def register_user(request):
     if request.method == "POST":
         serializer = UserSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
             serializer = ProfileSerializer(data={
-                "user" : User.objects.get(username=request.data['username']).pk,
+                "user" : User.objects.get(username=request.data["username"]).pk,
                 "profilePic" : None,
-                "desc" : f"Hi! This is {request.data['username']}!"
+                "desc" : "Hi! This is " + request.data["username"] + "!"
             })
             if not serializer.is_valid():
-                return Response({'message': 'Failed to create profile.', 'errors': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+                return Response({"message": "Failed to create profile.", "errors": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
             serializer.save()  
-            return Response({'message': 'User registered successfully'}, status=201)
+            return Response({"message": "User registered successfully"}, status=201)
         print(serializer.errors)
         return Response(serializer.errors, status=400) 
 
-@api_view(['POST'])
+@api_view(["POST"])
 def createGame(request):
     if request.method == "POST":
+        print(request.data)
+        user_data = json.loads(request.data["user"])
+        username = user_data["username"]
+        publicity = request.data["publicity"].lower() == "true"
         new_board = BoardGame.objects.create(
-            creator=User.objects.get(username=request.data["user"]["username"]),
-            profile=UserProfile.objects.get(user=User.objects.get(username=request.data["user"]["username"])),
+            creator=User.objects.get(username=username),
+            profile=UserProfile.objects.get(
+                user=User.objects.get(username=username)),
             title=request.data["title"],
             desc=request.data["desc"],
             rules=request.data["rules"],
-            publicity=request.data["publicity"]
+            publicity=publicity
         )
-        currencies_data = request.data.get("currencies", [])
-        spaces_data = request.data.get("spaces", [])
-        for currency_data in currencies_data:
-            currency_data['currencyBoardID'] = new_board.pk
-            print(currency_data)
+        currencies_data = json.loads(request.data.get("currencies[]"))
+        print("the date inside currencies[]", request.data.get("currencies[]"))
+        print("json loaded version", json.loads(request.data.get("currencies[]")))
+        currency_images = request.FILES.getlist("currencyImages[]")
+        print('inside the images:', request.FILES.getlist("currencyImages[]"))
+        spaces_data = json.loads(request.data.get("spaces", "[]"))
+        print("Number of currencies data:", len(currencies_data))
+        print("Number of currency images:", len(currency_images))
+        for currency_data, currency_image in zip(currencies_data, currency_images):
+            print("Inside loop")  
+            print("Currency data:", currency_data)
+            print("Currency image:", currency_image)
+            currency_data["currencyBoardID"] = new_board.pk
+            currency_data['currencyImage'] = currency_image
             serializer = CurrencySerializer(data=currency_data)
             if not serializer.is_valid():
-                return Response({'message': 'Failed to create board game.', 'errors': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+                return Response({"message": "Failed to create board game.", "errors": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
             serializer.save()
+            print("Currency instance data:", serializer.data)
+
         for space_data in spaces_data:
-            space_data['spaceBoardID'] = new_board.pk
+            space_data["spaceBoardID"] = new_board.pk
             serializer = SpaceSerializer(data=space_data)
             if not serializer.is_valid():
-                return Response({'message': 'Failed to create board game.', 'errors': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+                return Response({"message": "Failed to create board game.", "errors": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
             serializer.save()
         layout_data = {"layout": request.data["layout"]}
         layout_data["boardID"] = new_board.pk
         serializer = LayoutSerializer(data=layout_data)
         if not serializer.is_valid():
-            return Response({'message': 'Failed to create board game.', 'errors': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"message": "Failed to create board game.", "errors": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
         else:
             serializer.save()
         new_board.save()
-        return Response({'message': 'Board game created successfully.'}, status=status.HTTP_201_CREATED)
+        return Response({"message": "Board game created successfully."}, status=status.HTTP_201_CREATED)
 
-@api_view(['GET'])
+@api_view(["GET"])
 def retrieveBoards(request):
     if request.method == "GET":
         board_games = BoardGame.objects.all()
@@ -91,24 +108,33 @@ def retrieveBoards(request):
         space_serializer = SpaceSerializer(spaces, many=True)
         layouts = GameLayout.objects.all()
         layout_serializer = LayoutSerializer(layouts, many=True)
-        return Response({'boards': serializer.data, 'currencies': curr_serializer.data, 'spaces': space_serializer.data, 'layouts': layout_serializer.data})
+        return Response({"boards": serializer.data, "currencies": curr_serializer.data, "spaces": space_serializer.data, "layouts": layout_serializer.data})
 
-@api_view(['POST'])
+@api_view(["POST"])
 def retrieveProfile(request):
     if request.method == "POST":
         profile = UserProfile.objects.get(
-            user=User.objects.get(username=request.data['user']).pk)
+            user=User.objects.get(username=request.data["user"]).pk)
         serializer = ProfileSerializer(profile)
         print(serializer.data)
         board_games = BoardGame.objects.filter(
-            creator = User.objects.get(username=request.data['user']))
+            creator = User.objects.get(username=request.data["user"]))
         gamesSerializer = BoardGameSerializer(board_games, many=True)
-        return Response({'profile': serializer.data, 'games': gamesSerializer.data})
+        return Response({"profile": serializer.data, "games": gamesSerializer.data})
 
-@api_view(['POST'])
+@api_view(["POST"])
 def editProfile(request):
     if request.method == "POST":
+        print(request.data, request.FILES)
         profile = UserProfile.objects.get(
-            user=User.objects.get(username=request.data['user']).pk)
+            user=User.objects.get(username=json.loads(request.data["user"])).pk
+        )
+        profile.profilePic=request.FILES.get("pic")
+        print(profile.profilePic)
+        profile.desc=json.loads(request.data["desc"])
+        profile.save()
         serializer = ProfileSerializer(profile)
-        return Response({'profile': serializer.data})
+        board_games = BoardGame.objects.filter(
+            creator=User.objects.get(username=json.loads(request.data["user"])))
+        gamesSerializer = BoardGameSerializer(board_games, many=True)
+        return Response({"profile": serializer.data, "games": gamesSerializer.data})

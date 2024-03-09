@@ -58,3 +58,12 @@ table td {
     aspect-ratio: 1/1;
     padding: 0;
 }
+
+#photo-upload {
+    display: none;
+}
+
+#profileBg {
+    border: 8px solid white;
+    border-radius: 16px;
+}

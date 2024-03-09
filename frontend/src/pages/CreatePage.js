@@ -1,10 +1,11 @@
-import React, {useState, useContext, useEffect} from 'react'
-import AuthContext from '../context/AuthContext'
+import React, {useState, useContext, useEffect} from "react"
+import { Navigate } from "react-router-dom";
+import AuthContext from "../context/AuthContext"
 
 const CreatePage = () => {
     const { user } = useContext(AuthContext);
-    const [currencies, setCurrencies] = useState([{ id: 1, currencyType: '', currencyImage: null }]);
-    const [spaces, setSpaces] = useState([{id: 0, spaceName: '.', spaceColor : "rgb(255,255,255)", spaceType: "", spaceValue: ""}, { id: 1, spaceName: 'Start', spaceColor: null, spaceType: "Start", spaceValue: 'Start' }, { id: 2, spaceName: 'Finish', spaceColor: null, spaceType: "", spaceValue: '' }]);
+    const [currencies, setCurrencies] = useState([{ id: 1, currencyType: "", currencyImage: null }]);
+    const [spaces, setSpaces] = useState([{id: 0, spaceName: ".", spaceColor : "rgb(255,255,255)", spaceType: "", spaceValue: ""}, { id: 1, spaceName: "Start", spaceColor: null, spaceType: "Start", spaceValue: "Start" }, { id: 2, spaceName: "Finish", spaceColor: null, spaceType: "", spaceValue: "" }]);
     const [publicity, setPublicity] = useState(false);
     const [layout, setLayout] = useState([
             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -27,25 +28,33 @@ const CreatePage = () => {
                 convertedLayout[i][j] = spaces[spaceIds.indexOf(convertedLayout[i][j])].spaceName;
             }
         }
-        console.log(layout);
-        console.log({ user: user , title : e.target.title.value, desc : e.target.desc.value, rules : e.target.rules.value, publicity : publicity, currencies : currencies, spaces : spaces, layout : convertedLayout });
+        const formData = new FormData();
+        console.log(user, JSON.stringify(user))
+        formData.append("user", JSON.stringify(user));
+        formData.append("title", e.target.title.value);
+        formData.append("desc", e.target.desc.value);
+        formData.append("rules", e.target.rules.value);
+        formData.append("publicity", JSON.stringify(publicity));
+        currencies.forEach(currency => {
+            formData.append("currencyImages[]", currency.currencyImage);
+        });
+        formData.append("currencies[]", JSON.stringify(currencies))
+        formData.append("spaces", JSON.stringify(spaces));
+        formData.append("layout", JSON.stringify(convertedLayout));
         try {
-            const response = await fetch('http://127.0.0.1:8000/api/create/', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ user: user , title : e.target.title.value, desc : e.target.desc.value, rules : e.target.rules.value, publicity : publicity, currencies : currencies, spaces : spaces, layout: convertedLayout })
+            const response = await fetch("http://127.0.0.1:8000/api/create/", {
+                method: "POST",
+                body: formData
             });
             let data = await response.json();
             console.log(data);
-            if (data['message'] === 'Board game created successfully.') {
-                window.location = "/";
+            if (data["message"] === "Board game created successfully.") {
+                window.location = "/"
             } else {
-                alert('oh dang something went wrong');
+                alert("oh dang something went wrong");
             }
         } catch (error) {
-            console.log(error);
+            console.log(error, spaces);
             for (let i=0; i<layout.length; i++) {
                 for (let j=0; j<layout.length; j++) {
                     for (let k=0; k<spaces.length; k++) {
@@ -61,7 +70,7 @@ const CreatePage = () => {
     }
     const addCurrency = () => {
         const newId = currencies[currencies.length - 1].id + 1;
-        setCurrencies([...currencies, { id: newId, currencyType: '', currencyImage: null }]);
+        setCurrencies([...currencies, { id: newId, currencyType: "", currencyImage: null }]);
     };
     const removeCurrency = (id) => {
         if (currencies.length > 1) {
@@ -83,12 +92,13 @@ const CreatePage = () => {
         setCurrencies(updatedCurrencies);
     };
     const handleCurrencyImageChange = (id, event) => {
-        const { value } = event.target;
+        const { files } = event.target;
+        console.log(files[0])
         const updatedCurrencies = currencies.map(currency => {
             if (currency.id === id) {
                 return {
                     ...currency,
-                    currencyImage: value
+                    currencyImage: files[0]
                 };
             }
             return currency;
@@ -170,7 +180,7 @@ const CreatePage = () => {
                     return {
                         ...space,
                         spaceType: "",
-                        spaceValue: ''
+                        spaceValue: ""
                     }
                 }
             }
@@ -216,9 +226,6 @@ const CreatePage = () => {
     }
     const updateLayout = (rowIndex, cellIndex) => {
         const newLayout = [...layout];
-        console.log(newLayout);
-        console.log(spaceIds);
-        console.log(spaces);
         let cell = newLayout[rowIndex][cellIndex];
         console.log(spaceIds.indexOf(cell)+1, spaceIds.length, spaceIds[spaceIds.indexOf(cell)+1]);
         if (spaceIds.indexOf(cell)+1 >= spaceIds.length) {
@@ -260,7 +267,6 @@ const CreatePage = () => {
                                 className="form-control text-primary"
                                 aria-label="Currency Image"
                                 name={`currency-image-${currency.id}`}
-                                value={currency.currencyImage ? currency.currencyImage : ""}
                                 onChange={(e) => handleCurrencyImageChange(currency.id, e)}
                             />
                             <button
@@ -336,7 +342,7 @@ const CreatePage = () => {
                                 <div className="input-group">
                                     <select value={space.spaceValue[0]} className="form-select" onChange={(e) => updateSpaceValue(space.id, e)}>
                                         <option value="">Please choose a currency.</option>
-                                        {currencies.map(currency => currency.currencyType != '' && (
+                                        {currencies.map(currency => currency.currencyType != "" && (
                                             <option value={currency.currencyType}>{currency.currencyType}</option>
                                         ))}
                                     </select>
@@ -358,7 +364,7 @@ const CreatePage = () => {
                                 </div>
                             : ( space.spaceType === "Movement" ? 
                                 <div className="input-group">
-                                    { typeof space.spaceValue !== 'string' ? 
+                                    { typeof space.spaceValue !== "string" ? 
                                         <input
                                             type="number"
                                             placeholder="How many spaces will they move?"

@@ -30,11 +30,17 @@ const Header = () => {
                 <Link class="navbar-brand d-inline" to="/">
                     <h1 class="text-light">
                     All-ABoard
-                    {profileData['profile']['profilePic'] ? (
-                        <img className="m-2" width="50" id="profilePic" src={`../images/${profileData.profile.profilePic.replace("frontend/public/images/", "")}`} alt="Profile Pic" />
-                    ) : (
-                        <img className="m-2" width="50" id="profilePic" src="https://www.shutterstock.com/image-vector/blank-avatar-photo-place-holder-600nw-1095249842.jpg" alt="Default Avatar" />
-                    )}
+                    {user &&
+                        <Link className="text-light text-decoration-none" to={{
+                            pathname: `/profile/${user['username']}`,
+                        }}>
+                            {profileData && profileData['profile']['profilePic'] ? (
+                                <img className="m-2" width="50" id="profilePic" src={`http://127.0.0.1:8000${profileData.profile.profilePic}`} alt="Profile Pic" />
+                            ) : (
+                                <img className="m-2" width="50" id="profilePic" src="https://www.shutterstock.com/image-vector/blank-avatar-photo-place-holder-600nw-1095249842.jpg" alt="Default Avatar" />
+                            )}
+                        </Link>
+                    }
                     </h1>
                 </Link>
                 <div class="navbar-nav">

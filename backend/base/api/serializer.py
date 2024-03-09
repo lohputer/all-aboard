@@ -5,7 +5,7 @@ from django.contrib.auth.models import User
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['username', 'password', 'email']
+        fields = ["username", "password", "email"]
 
     def create(self, validated_data):
         user = User.objects.create_user(**validated_data)
@@ -16,22 +16,23 @@ class CurrencySerializer(serializers.ModelSerializer):
         queryset=BoardGame.objects.all())
     class Meta:
         model = Currency
-        fields = ['currencyType', 'currencyImage', 'currencyBoardID']
+        fields = ["currencyType", "currencyImage", "currencyBoardID"]
         extra_kwargs = {
-            'currencyImage': {'required': False, 'allow_null': True, 'default': None}
+            "currencyImage": {"required": False, "allow_null": True, "default": None}
         }
     
     def create(self, validated_data):
         currency = Currency.objects.create(**validated_data)
+        currency.save()
         return currency
 
 class SpaceSerializer(serializers.ModelSerializer):
     spaceBoardID = serializers.PrimaryKeyRelatedField(queryset=BoardGame.objects.all())
     class Meta:
         model = BoardGameSpace
-        fields = ['spaceName', 'spaceColor', 'spaceType', 'spaceValue', 'spaceBoardID']
+        fields = ["spaceName", "spaceColor", "spaceType", "spaceValue", "spaceBoardID"]
         extra_kwargs = {
-            'spaceColor': {'required': False, 'allow_null': True, 'default': None}
+            "spaceColor": {"required": False, "allow_null": True, "default": None}
         }
     
     def create(self, validated_data):
@@ -53,7 +54,7 @@ class LayoutSerializer(serializers.ModelSerializer):
     boardID = serializers.PrimaryKeyRelatedField(queryset=BoardGame.objects.all())
     class Meta:
         model = GameLayout
-        fields = ['boardID', 'layout']
+        fields = ["boardID", "layout"]
 
 class BoardGameSerializer(serializers.ModelSerializer):
     currencies = CurrencySerializer(many=True, read_only=True)
@@ -61,7 +62,7 @@ class BoardGameSerializer(serializers.ModelSerializer):
     layouts = LayoutSerializer(many=True, read_only=True)
     class Meta:
         model = BoardGame
-        fields = ['title', 'desc', 'rules', 'publicity', 'spaces', 'currencies', 'layouts', 'creator', 'id']
+        fields = ["title", "desc", "rules", "publicity", "spaces", "currencies", "layouts", "creator", "id"]
     
     creator = serializers.SerializerMethodField()
     def get_creator(self, obj):
@@ -70,7 +71,7 @@ class BoardGameSerializer(serializers.ModelSerializer):
 class ProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserProfile
-        fields = ['user', 'profilePic', 'desc']
+        fields = ["user", "profilePic", "desc"]
 
     user = serializers.SerializerMethodField()
     def get_user(self, obj):
