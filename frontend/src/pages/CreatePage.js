@@ -566,7 +566,7 @@ const CreatePage = () => {
                                 <tr key={rowIndex}>
                                     {row.map((cell, cellIndex) => (
                                         spaces[spaceIds.indexOf(cell)] ? 
-                                            <td style={spaces[spaceIds.indexOf(cell)].spaceColor ? { backgroundColor: spaces[spaceIds.indexOf(cell)].spaceColor } : { backgroundImage: spaces[spaceIds.indexOf(cell)].spaceImage}} key={cellIndex} className="border" onClick={() => updateLayout(rowIndex, cellIndex)}>
+                                            <td style={spaces[spaceIds.indexOf(cell)].spaceColor ? { backgroundColor: spaces[spaceIds.indexOf(cell)].spaceColor } : { backgroundImage: `url(${spaces[spaceIds.indexOf(cell)].spaceImage})`}} key={cellIndex} className="border" onClick={() => updateLayout(rowIndex, cellIndex)}>
                                                 {spaces[spaceIds.indexOf(cell)].spaceName}
                                             </td>
                                         : 
