@@ -12,6 +12,7 @@ class UserProfile(models.Model):
 class BoardGame(models.Model):
     creator = models.ForeignKey(User, on_delete=models.CASCADE)
     profile = models.ForeignKey(UserProfile, on_delete=models.CASCADE, null=True)
+    diceRoll = models.IntegerField()
     title = models.CharField(max_length=50)
     desc = models.TextField()
     rules = models.TextField()
@@ -23,13 +24,16 @@ class Currency(models.Model):
     currencyType = models.TextField()
     currencyImage = models.ImageField(blank=True, upload_to="")
     currencyBoardID = models.ForeignKey(BoardGame, on_delete=models.CASCADE)
+    currencyDesc = models.TextField()
     def __str__(self):
         return f"{self.currencyBoardID} - {self.currencyType}"
 
 class BoardGameSpace(models.Model):
     spaceName = models.TextField()
     spaceColor = models.TextField(blank=True, null=True)
+    spaceImage = models.ImageField(blank=True, upload_to="")
     spaceBoardID = models.ForeignKey(BoardGame, on_delete=models.CASCADE)
+    spaceDesc = models.TextField()
     spaceType = models.TextField(default="", blank=True, null=True)
     spaceValue = models.JSONField(blank=True, null=True)
 

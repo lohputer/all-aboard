@@ -59,7 +59,8 @@ def createGame(request):
             title=request.data["title"],
             desc=request.data["desc"],
             rules=request.data["rules"],
-            publicity=publicity
+            publicity=publicity,
+            diceRoll=request.data["diceRoll"],
         )
         currencies_data = json.loads(request.data.get("currencies[]"))
         print("the date inside currencies[]", request.data.get("currencies[]"))

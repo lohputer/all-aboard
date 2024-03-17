@@ -1,7 +1,7 @@
 * {
     padding: 0;
     margin: 0;
-    background-color: #171717;
+    background-color: black;
     color: white;
 }
 
@@ -25,7 +25,7 @@ a {
 }
 
 .board {
-    background-color: #121212;
+    background-color: rgb(18, 18, 18);
     border-radius: 16px;
     border: 8px solid white;
 }
@@ -66,4 +66,26 @@ table td {
 #profileBg {
     border: 8px solid white;
     border-radius: 16px;
+}
+
+#form .form-group  {
+    background-color: white;
+    border: 10px double black;
+    border-radius: 10px;
+}
+#form > div > input, #form > div > textarea {
+    border: 5px solid black;
+    border-radius: 10px;
+}
+#form .form-group input, #form .form-group textarea, #form .form-group button, #form .form-group select {
+    border-radius: 0px;
+}
+
+#form .form-group:last-child  {
+    border-bottom-left-radius: 10px;
+    border-bottom-right-radius: 10px;
+}
+
+.input-group-prepend {
+    border-radius: 0%;
 }

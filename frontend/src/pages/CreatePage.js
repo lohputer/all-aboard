@@ -4,8 +4,8 @@ import AuthContext from "../context/AuthContext"
 
 const CreatePage = () => {
     const { user } = useContext(AuthContext);
-    const [currencies, setCurrencies] = useState([{ id: 1, currencyType: "", currencyImage: null }]);
-    const [spaces, setSpaces] = useState([{id: 0, spaceName: ".", spaceColor : "rgb(255,255,255)", spaceType: "", spaceValue: ""}, { id: 1, spaceName: "Start", spaceColor: null, spaceType: "Start", spaceValue: "Start" }, { id: 2, spaceName: "Finish", spaceColor: null, spaceType: "", spaceValue: "" }]);
+    const [currencies, setCurrencies] = useState([{ id: 1, currencyType: "", currencyImage: null, currencyDesc: "" }]);
+    const [spaces, setSpaces] = useState([{id: 0, spaceName: ".", spaceColor : "#EEEEEE", spaceImage: null, spaceType: "", spaceValue: "", spaceDesc: "", spaceOption: "spaceColor"}, { id: 1, spaceName: "Start", spaceColor: "#EEEEEE", spaceImage: null, spaceType: "Start", spaceValue: "Start", spaceDesc: "This is the Start space.", spaceOption: "spaceColor"}, { id: 2, spaceName: "Finish", spaceColor: "#EEEEEE", spaceImage: null, spaceType: "Nothing", spaceValue: "", spaceDesc: "This is the Finish space.", spaceOption: "spaceColor" }]);
     const [publicity, setPublicity] = useState(false);
     const [layout, setLayout] = useState([
             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -35,8 +35,12 @@ const CreatePage = () => {
         formData.append("desc", e.target.desc.value);
         formData.append("rules", e.target.rules.value);
         formData.append("publicity", JSON.stringify(publicity));
+        formData.append("diceRoll", e.target.diceroll.value);
         currencies.forEach(currency => {
             formData.append("currencyImages[]", currency.currencyImage);
+        });
+        spaces.forEach(space => {
+            formData.append("spaceImages[]", space.spaceImage);
         });
         formData.append("currencies[]", JSON.stringify(currencies))
         formData.append("spaces", JSON.stringify(spaces));
@@ -70,7 +74,7 @@ const CreatePage = () => {
     }
     const addCurrency = () => {
         const newId = currencies[currencies.length - 1].id + 1;
-        setCurrencies([...currencies, { id: newId, currencyType: "", currencyImage: null }]);
+        setCurrencies([...currencies, { currencyName: "", id: newId, currencyType: "", currencyImage: null, currencyDesc: "" }]);
     };
     const removeCurrency = (id) => {
         if (currencies.length > 1) {
@@ -105,9 +109,23 @@ const CreatePage = () => {
         });
         setCurrencies(updatedCurrencies);
     };
+    const updateCurrencyDesc = (id, event) => {
+        let value = event.target.value
+        console.log(value, typeof event.target.value)
+        const updatedCurrencies = currencies.map(currency => {
+            if (currency.id === id) {
+                return {
+                    ...currency,
+                    currencyDesc: event.target.value
+                }
+            }
+            return currency;
+        });
+        setCurrencies(updatedCurrencies);
+    }
     const addSpace = () => {
         const newId = spaces[spaces.length - 1].id + 1;
-        setSpaces([...spaces, { id: newId, spaceColor: null, spaceType: null, spaceValue: null }]);
+        setSpaces([...spaces, { spaceName: "", id: newId, spaceColor: "#EEEEEE", spaceImage: null, spaceType: null, spaceValue: null, spaceDesc: "" }]);
     };
     const removeSpace = (id) => {
         if (spaces.length > 2) {
@@ -138,6 +156,35 @@ const CreatePage = () => {
         setSpaces(updatedSpaces);
         console.log(spaces);
     }
+    const handleSpaceColorChange = (id, event) => {
+        const { value } = event.target;
+        const updatedSpaces = spaces.map(space => {
+            if (space.id === id) {
+                return {
+                    ...space,
+                    spaceColor: value, 
+                    spaceImage: null
+                };
+            }
+            return space;
+        });
+        setSpaces(updatedSpaces);
+    };
+    const handleSpaceImageChange = (id, event) => {
+        const { files } = event.target;
+        console.log(files[0])
+        const updatedSpaces = spaces.map(space => {
+            if (space.id === id) {
+                return {
+                    ...space,
+                    spaceColor: null,
+                    spaceImage: files[0]
+                };
+            }
+            return space;
+        });
+        setSpaces(updatedSpaces);
+    };
     const updateSpaceType = (id, event) => {
         const { value } = event.target;
         const updatedSpaces = spaces.map(space => {
@@ -175,6 +222,12 @@ const CreatePage = () => {
                         ...space,
                         spaceType: "Turn",
                         spaceValue: true
+                    }
+                } else if (value === "Nothing") {
+                    return {
+                        ...space,
+                        spaceType: value,
+                        spaceValue: "Nothing"
                     }
                 } else {
                     return {
@@ -222,7 +275,20 @@ const CreatePage = () => {
             return space;
         });
         setSpaces(updatedSpaces);
-        console.log(spaces);
+    }
+    const updateSpaceDesc = (id, event) => {
+        let value = event.target.value
+        console.log(value, typeof event.target.value)
+        const updatedSpaces = spaces.map(space => {
+            if (space.id === id) {
+                return {
+                    ...space,
+                    spaceDesc: event.target.value
+                }
+            }
+            return space;
+        });
+        setSpaces(updatedSpaces);
     }
     const updateLayout = (rowIndex, cellIndex) => {
         const newLayout = [...layout];
@@ -234,65 +300,90 @@ const CreatePage = () => {
         newLayout[rowIndex][cellIndex] = spaceIds[spaceIds.indexOf(cell)+1];
         setLayout(newLayout);
     };
+    const handleSpaceOptionChange = (id, event) => {
+        const { value } = event.target;
+        const updatedSpaces = spaces.map(space => {
+            if (space.id === id) {
+                return {
+                    ...space,
+                    spaceOption: value
+                };
+            }
+            return space;
+        });
+        setSpaces(updatedSpaces);
+    };
     return (
         <div className="vw-100 justify-content-center align-items-center row d-flex">
             <form className="row d-flex mt-4 m-2 col-10 col-sm-10 col-md-8 col-lg-6" onSubmit={createCustom}>
                 <h1>Create your own game! :D</h1>
-                <div className="form-group">
+                <div id="form" className="form-group">
                     <div>
                         <label htmlFor="game_title">Title of Game:</label>
-                        <input type="text" name="title" maxLength="100" className="form-control text-primary rounded shadow border border-primary p-2 my-2 my-2" required id="game_title" />  
+                        <input type="text" name="title" maxLength="100" className="form-control text-dark shadow p-2 my-2 my-2" required id="game_title" />  
                     </div>
                     <div>
                         <label htmlFor="game_desc">Description:</label>
-                        <textarea name="desc" className="form-control text-primary rounded shadow border border-primary p-2 my-2 my-2" required id="game_desc" rows={5} />   
+                        <textarea name="desc" className="form-control text-dark shadow p-2 my-2 my-2" required id="game_desc" rows={5} />   
                     </div>
                     <div>
                         <label htmlFor="game_rules">Rules:</label>
-                        <textarea name="rules" className="form-control text-primary rounded shadow border border-primary p-2 my-2 my-2" required id="game_rules" placeholder="Type your rules in point form like:&#10;- example rule 1&#10;- example rule 2" rows={5} />   
+                        <textarea name="rules" className="form-control text-dark shadow p-2 my-2 my-2" required id="game_rules" placeholder="Type your rules in point form like:&#10;- example rule 1&#10;- example rule 2" rows={5} />   
                     </div>
-                    <h2>Currencies </h2>
+                    <div>
+                        <label htmlFor="diceroll">Create your own dice! How many sides will this dice have?</label>
+                        <input type="number" defaultValue={1} min={1} name="diceroll" maxLength="100" className="form-control text-dark shadow p-2 my-2 my-2" required id="diceroll" />  
+                    </div>
+                    <h2>Currencies</h2>
                     {currencies.map(currency => (
-                        <div className="input-group mb-3 border border-primary rounded">
-                            <input
-                                type="text"
-                                className="form-control text-primary"
-                                placeholder="Currency Name"
-                                aria-label="Currency Name"
-                                value={currency.currencyType}
-                                onChange={(e) => handleCurrencyTypeChange(currency.id, e)}
-                            />
-                            <input
-                                type="file"
-                                className="form-control text-primary"
-                                aria-label="Currency Image"
-                                name={`currency-image-${currency.id}`}
-                                onChange={(e) => handleCurrencyImageChange(currency.id, e)}
-                            />
-                            <button
-                                className="btn btn-primary"
-                                type="button"
-                                onClick={addCurrency}
-                                disabled={currency.id !== currencies[currencies.length - 1].id}
-                            >
-                                +
-                            </button>
-                            <button
-                                className="btn btn-danger"
-                                type="button"
-                                onClick={() => removeCurrency(currency.id)}
-                            >
-                                - 
-                            </button>
-                        </div>
-                    ))}
-                    <h2>Spaces</h2>
-                    {spaces.map(space => (space.id != 0 && 
-                        <div className="form-group border border-primary rounded mb-3">
+                        <div className="form-group mb-3">
                             <div className="input-group">
                                 <input
                                     type="text"
                                     className="form-control text-primary"
+                                    placeholder="Currency Name"
+                                    aria-label="Currency Name"
+                                    value={currency.currencyType}
+                                    onChange={(e) => handleCurrencyTypeChange(currency.id, e)}
+                                />
+                                <input
+                                    type="file"
+                                    className="form-control text-primary"
+                                    aria-label="Currency Image"
+                                    name={`currency-image-${currency.id}`}
+                                    onChange={(e) => handleCurrencyImageChange(currency.id, e)}
+                                />
+                                <button
+                                    className="btn btn-primary"
+                                    
+                                    
+                                    onClick={addCurrency}
+                                    disabled={currency.id !== currencies[currencies.length - 1].id}
+                                >
+                                    +
+                                </button>
+                                <button
+                                    className="btn btn-danger"
+                                    type="button"
+                                    onClick={() => removeCurrency(currency.id)}
+                                >
+                                    - 
+                                </button>
+                            </div>
+                            {currency.currencyType && 
+                                <div className="input-group">
+                                    <textarea value={currency.currencyDesc} onChange={(e) => updateCurrencyDesc(currency.id, e)} className="form-control text-dark p-2" required placeholder="Give a custom description for your currency that will be displayed on the game page :D" rows={2} />  
+                                </div> 
+                            }
+                        </div>
+                    ))}
+                    <h2>Spaces</h2>
+                    {spaces.map(space => (space.id != 0 && 
+                        <div className="form-group mb-3">
+                            <div className="input-group">
+                                <input
+                                    type="text"
+                                    className="form-control"
                                     placeholder="Space Name"
                                     aria-label="Space Name"
                                     name={`space-name-${space.id}`}
@@ -300,7 +391,7 @@ const CreatePage = () => {
                                      onChange={(e)=>updateSpaceName(space.id, e)}
                                 />
                                 <select value={
-                                    space.spaceValue && (
+                                    space.spaceValue ? (
                                         (space.spaceType == "Currency") ?
                                             (parseInt(space.spaceValue[1]) > 0) ? 
                                                 "Add"
@@ -312,16 +403,18 @@ const CreatePage = () => {
                                             "Turn"
                                         : (space.spaceType == "Start") ? 
                                             "Start" 
-                                        : 
+                                        : (space.spaceType == "Nothing") &&
                                             "Nothing"
-                                    )
+                                    ) : ""
                                 } disabled={space.id === 1 && true} className="form-select" aria-label="Default select example" onChange={(e)=>updateSpaceType(space.id, e)}>
-                                    <option value="Nothing" >Nothing</option>
+                                    <option value="" >--Choose a function--</option>
                                     <option value="Add">Add (amt) to (currency)</option>
                                     <option value="Remove">Remove (amt) from (currency)</option>
                                     <option value="Movement">Move (amt) spaces</option>
                                     <option value="MoveTo">Move to (space)</option>
                                     <option value="Turn">Skip Turn</option>
+                                    <option value="Nothing" >Nothing</option>
+                                    <option value="Start">Start</option>
                                 </select>
                                 <button
                                     className="btn btn-primary"
@@ -338,37 +431,37 @@ const CreatePage = () => {
                                     - 
                                 </button>
                             </div>
-                            {space.spaceType === "Currency" ?
-                                <div className="input-group">
-                                    <select value={space.spaceValue[0]} className="form-select" onChange={(e) => updateSpaceValue(space.id, e)}>
-                                        <option value="">Please choose a currency.</option>
-                                        {currencies.map(currency => currency.currencyType != "" && (
-                                            <option value={currency.currencyType}>{currency.currencyType}</option>
-                                        ))}
-                                    </select>
-                                    {space.spaceValue[0] != "" && 
-                                        <input
-                                            type="number"
-                                            className="form-control text-primary"
-                                            aria-label="Space Value"
-                                            name={`space-value-${space.id}`}
-                                            value={space.spaceValue[1]}
-                                            onChange={(e)=>{
-                                                if (e.target.value === "") {
-                                                    e.target.value = 0;
-                                                }
-                                                updateSpaceValue(space.id, e);
-                                            }}
-                                        />
-                                    }
-                                </div>
-                            : ( space.spaceType === "Movement" ? 
-                                <div className="input-group">
-                                    { typeof space.spaceValue !== "string" ? 
+                            <div className="input-group">
+                                {space.spaceType === "Currency" ?
+                                    <>
+                                        <select value={space.spaceValue[0]} className="form-select" onChange={(e) => updateSpaceValue(space.id, e)}>
+                                            <option value="">Please choose a currency.</option>
+                                            {currencies.map(currency => currency.currencyType != "" && (
+                                                <option value={currency.currencyType}>{currency.currencyType}</option>
+                                            ))}
+                                        </select>
+                                        {space.spaceValue[0] != "" && 
+                                            <input
+                                                type="number"
+                                                className="form-control text-primary"
+                                                aria-label="Space Value"
+                                                name={`space-value-${space.id}`}
+                                                value={space.spaceValue[1]}
+                                                onChange={(e)=>{
+                                                    if (e.target.value === "") {
+                                                        e.target.value = 0;
+                                                    }
+                                                    updateSpaceValue(space.id, e);
+                                                }}
+                                            />
+                                        }
+                                    </>
+                                : (space.spaceType === "Movement" &&
+                                    (typeof space.spaceValue !== "string" ? 
                                         <input
                                             type="number"
                                             placeholder="How many spaces will they move?"
-                                            className="form-control text-primary"
+                                            className="form-control text-dark"
                                             aria-label="Space Value"
                                             name={`space-value-${space.id}`}
                                             value={space.spaceValue}
@@ -381,12 +474,88 @@ const CreatePage = () => {
                                                 <option key={space2.id} value={space2.spaceName}>{space2.spaceName}</option>
                                             ))}
                                         </select>
-                                    }
-                                </div>
-                            : 
-                                <div className="input-group">
-                                </div>
-                            )}
+                                    ))
+                                }
+                            </div>
+                            <div className="input-group">
+                                <select 
+                                    defaultValue={space.spaceOption}
+                                    className="form-select" 
+                                    onChange={(e) => handleSpaceOptionChange(space.id, e)}
+                                >
+                                    <option value="spaceColor">Space Color</option>
+                                    <option value="spaceImage">Space Image</option>
+                                </select>
+                                {space.spaceOption === "spaceImage" ?
+                                    <input files={space.spaceImage} type="file" className="form-control" onChange={(e) => handleSpaceImageChange(space.id, e)} />
+                                : 
+                                    <input value={space.spaceColor} type="color" className="form-control form-control-color" onChange={(e) => handleSpaceColorChange(space.id, e)} />
+                                }
+                            </div>
+                            {space.spaceValue && !(typeof space.spaceValue == "object" && space.spaceValue.includes("")) && 
+                                <>
+                                    <div className="input-group">
+                                        <textarea defaultValue={space.spaceValue && (
+                                            `The ${space.spaceName} space` + (
+                                                space.spaceValue && (
+                                                    (space.spaceType == "Currency") ?
+                                                        (parseInt(space.spaceValue[1]) > 0) ? 
+                                                            ` adds ${space.spaceValue[1]} ${space.spaceValue[0]} to the player who lands on it.`
+                                                        : 
+                                                            ` removes ${Math.abs(space.spaceValue[1])} ${space.spaceValue[0]} from the player who lands on it.`
+                                                    : (space.spaceType == "Movement") ? 
+                                                        (isNaN(parseInt(space.spaceValue))) ? ` moves the player to the ${space.spaceValue} space.` : ` moves the player ${space.spaceValue} spaces.`
+                                                    : (space.spaceType == "Turn") ? 
+                                                        " skips the turn of the player who lands on it."
+                                                    : (space.spaceType == "Start") ? 
+                                                        " is..a start space." 
+                                                    : 
+                                                        " does nothing."
+                                                )
+                                            )
+                                        )} value={space.spaceDesc} onChange={(e) => updateSpaceDesc(space.id, e)} className="form-control text-dark p-2" required placeholder="Give a custom description for your space that will be displayed on the game page :D" rows={2} />   
+                                    </div>
+                                    {space.spaceValue && (
+                                        <button
+                                            type="button"
+                                            id={`desc-btn-${space.id}`}
+                                            onClick={(e) => {
+                                                const updatedSpaces = spaces.map(space2 => {
+                                                    if (space2.id === space.id) {
+                                                        return {
+                                                            ...space2,
+                                                            spaceDesc: e.target.innerHTML.replace('Set description to ', '').replace('"', '').replace('"', '')
+                                                        };
+                                                    }
+                                                    return space2;
+                                                });
+                                                setSpaces(updatedSpaces);
+                                            }}
+                                            className="col-12 btn btn-success"
+                                        >
+                                            Set description to {
+                                                `"The ${space.spaceName} space` + (
+                                                    space.spaceValue && (
+                                                        (space.spaceType == "Currency") ?
+                                                            (parseInt(space.spaceValue[1]) > 0) ? 
+                                                                ` adds ${space.spaceValue[1]} ${space.spaceValue[0]} to the player who lands on it."`
+                                                            : 
+                                                                ` removes ${Math.abs(space.spaceValue[1])} ${space.spaceValue[0]} from the player who lands on it."`
+                                                        : (space.spaceType == "Movement") ? 
+                                                            (isNaN(parseInt(space.spaceValue))) ? ` moves the player to the ${space.spaceValue} space."` : ` moves the player ${space.spaceValue} spaces."`
+                                                        : (space.spaceType == "Turn") ? 
+                                                           ' skips the turn of the player who lands on it."'
+                                                        : (space.spaceType == "Start") ? 
+                                                            ' is..a start space."'
+                                                        : 
+                                                            ' does nothing."'
+                                                    )
+                                                )
+                                            }
+                                        </button>
+                                    )}
+                                </>
+                            }
                         </div>
                     ))}
 
@@ -397,7 +566,7 @@ const CreatePage = () => {
                                 <tr key={rowIndex}>
                                     {row.map((cell, cellIndex) => (
                                         spaces[spaceIds.indexOf(cell)] ? 
-                                            <td key={cellIndex} className="border" onClick={() => updateLayout(rowIndex, cellIndex)}>
+                                            <td style={spaces[spaceIds.indexOf(cell)].spaceColor ? { backgroundColor: spaces[spaceIds.indexOf(cell)].spaceColor } : { backgroundImage: spaces[spaceIds.indexOf(cell)].spaceImage}} key={cellIndex} className="border" onClick={() => updateLayout(rowIndex, cellIndex)}>
                                                 {spaces[spaceIds.indexOf(cell)].spaceName}
                                             </td>
                                         : 
