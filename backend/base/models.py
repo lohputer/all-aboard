@@ -2,7 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User 
 
 class UserProfile(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, null=False)
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
     profilePic = models.ImageField(
         blank=True, null=True, upload_to="")
     desc = models.TextField() 

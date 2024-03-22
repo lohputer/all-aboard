@@ -73,6 +73,9 @@ class ProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserProfile
         fields = ["user", "profilePic", "desc"]
+        extra_kwargs = {
+            "profilePic": {"required": False, "allow_null": True, "default": None}
+        }
 
     user = serializers.SerializerMethodField()
     def get_user(self, obj):

@@ -61,7 +61,7 @@ const ProfilePage = () => {
                             </label>
                             {user && user.username === profileData.profile.user && (
                                 <div>
-                                    <input id="photo-upload" type="file" onChange={profileChange} defaultValue={profileData.profile.profilePic} style={{ display: "none" }} />
+                                    <input id="photo-upload" type="file" onChange={profileChange} file={profileData.profile.profilePic} style={{ display: "none" }} />
                                 </div>
                             )}
                         </div>
@@ -76,9 +76,9 @@ const ProfilePage = () => {
                         </div>
                     </div>
                     {profileData.games.length > 0 ? (
-                        <div className="d-flex justify-content-center">
+                        <div className="row d-flex justify-content-center">
                             {profileData.games.map(game => (
-                                <div className="col text-center board m-2 p-2 col-lg-6 col-md-6 col-sm-12 col-12" key={game.id}>
+                                <div className="col text-center board m-2 p-2 col-5" key={game.id}>
                                     <Link className="text-light text-decoration-none" to={{
                                         pathname: `/game/${game.id}`,
                                         state: { boardGame: game }

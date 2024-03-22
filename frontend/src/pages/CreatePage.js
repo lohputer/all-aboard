@@ -29,7 +29,6 @@ const CreatePage = () => {
             }
         }
         const formData = new FormData();
-        console.log(user, JSON.stringify(user))
         formData.append("user", JSON.stringify(user));
         formData.append("title", e.target.title.value);
         formData.append("desc", e.target.desc.value);
@@ -39,10 +38,10 @@ const CreatePage = () => {
         currencies.forEach(currency => {
             formData.append("currencyImages[]", currency.currencyImage);
         });
+        formData.append("currencies[]", JSON.stringify(currencies))
         spaces.forEach(space => {
             formData.append("spaceImages[]", space.spaceImage);
         });
-        formData.append("currencies[]", JSON.stringify(currencies))
         formData.append("spaces", JSON.stringify(spaces));
         formData.append("layout", JSON.stringify(convertedLayout));
         try {
