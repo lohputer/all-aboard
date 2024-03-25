@@ -1,7 +1,14 @@
 from rest_framework import serializers
 from base.models import *
 from django.contrib.auth.models import User
-
+class UserProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserProfile
+        fields = ["user", "profilePic", "desc"]
+        extra_kwargs = {
+            "profilePic": {"required": False, "allow_null": True, "default": None}
+        }
+        
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
@@ -49,6 +56,7 @@ class SpaceSerializer(serializers.ModelSerializer):
             space.setPurpose()
         else:
             space.spaceValue = ""
+        print(space)
         return space
 
 class LayoutSerializer(serializers.ModelSerializer):
@@ -68,15 +76,3 @@ class BoardGameSerializer(serializers.ModelSerializer):
     creator = serializers.SerializerMethodField()
     def get_creator(self, obj):
         return obj.creator.username
-
-class ProfileSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = UserProfile
-        fields = ["user", "profilePic", "desc"]
-        extra_kwargs = {
-            "profilePic": {"required": False, "allow_null": True, "default": None}
-        }
-
-    user = serializers.SerializerMethodField()
-    def get_user(self, obj):
-        return obj.user.username

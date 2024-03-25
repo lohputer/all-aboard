@@ -2,7 +2,7 @@ from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
-from .serializer import UserSerializer, CurrencySerializer, SpaceSerializer, BoardGameSerializer, LayoutSerializer, ProfileSerializer
+from .serializer import UserSerializer, CurrencySerializer, SpaceSerializer, BoardGameSerializer, LayoutSerializer, UserProfileSerializer
 from django.contrib.auth.models import User
 import json
 from base.models import *
@@ -26,25 +26,27 @@ def get_routes(request):
    ]
    return Response(routes)
 
+
 @api_view(["POST"])
 def register_user(request):
     if request.method == "POST":
-        serializer = UserSerializer(data=request.data)
-        if serializer.is_valid():
-            user = serializer.save()
+        user_serializer = UserSerializer(data=request.data)
+        if user_serializer.is_valid():
+            user = user_serializer.save()
             profile_data = {
-                "user": user.pk,
+                "user": user.id, 
                 "profilePic": None,
-                "desc": "Hi! This is " + user.username + "!"
+                "desc": "Hi! I am " + user.username + "!"
             }
-            profile_serializer = ProfileSerializer(data=profile_data)
+            profile_serializer = UserProfileSerializer(data=profile_data)
             if profile_serializer.is_valid():
                 profile_serializer.save()
+                return Response({"message": "User registered successfully"}, status=status.HTTP_201_CREATED)
             else:
                 user.delete()
-                return Response({"message": "Failed to create profile.", "errors": profile_serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
-            return Response({"message": "User registered successfully"}, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST) 
+                return Response(profile_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response(user_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(["POST"])
 def createGame(request):
@@ -55,8 +57,6 @@ def createGame(request):
         publicity = request.data["publicity"].lower() == "true"
         new_board = BoardGame.objects.create(
             creator=User.objects.get(username=username),
-            profile=UserProfile.objects.get(
-                user=User.objects.get(username=username)),
             title=request.data["title"],
             desc=request.data["desc"],
             rules=request.data["rules"],
@@ -109,13 +109,15 @@ def retrieveBoards(request):
 def retrieveProfile(request):
     if request.method == "POST":
         profile = UserProfile.objects.get(
-            user=User.objects.get(username=request.data["user"]).pk)
-        serializer = ProfileSerializer(profile)
+            user=User.objects.get(username=request.data["user"]))
+        serializer = UserProfileSerializer(profile)
         print(serializer.data)
         board_games = BoardGame.objects.filter(
             creator = User.objects.get(username=request.data["user"]))
         gamesSerializer = BoardGameSerializer(board_games, many=True)
-        return Response({"profile": serializer.data, "games": gamesSerializer.data})
+        profileData = serializer.data
+        profileData['user'] = User.objects.get(pk=profileData['user']).username
+        return Response({"profile": profileData, "games": gamesSerializer.data})
 
 @api_view(["POST"])
 def editProfile(request):
@@ -128,8 +130,10 @@ def editProfile(request):
         print(profile.profilePic)
         profile.desc=json.loads(request.data["desc"])
         profile.save()
-        serializer = ProfileSerializer(profile)
+        serializer = UserProfileSerializer(profile)
         board_games = BoardGame.objects.filter(
             creator=User.objects.get(username=json.loads(request.data["user"])))
         gamesSerializer = BoardGameSerializer(board_games, many=True)
-        return Response({"profile": serializer.data, "games": gamesSerializer.data})
+        profileData = serializer.data
+        profileData['user'] = User.objects.get(pk=profileData['user']).username
+        return Response({"profile": profileData, "games": gamesSerializer.data})
