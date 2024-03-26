@@ -51,7 +51,6 @@ def register_user(request):
 @api_view(["POST"])
 def createGame(request):
     if request.method == "POST":
-        print(request.data)
         user_data = json.loads(request.data["user"])
         username = user_data["username"]
         publicity = request.data["publicity"].lower() == "true"
@@ -74,10 +73,11 @@ def createGame(request):
             if not serializer.is_valid():
                 return Response({"message": "Failed to create board game.", "errors": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
             serializer.save()
-            print("Currency instance data:", serializer.data)
         for space_data, space_image in zip(spaces_data, spaces_images):
             space_data["spaceBoardID"] = new_board.pk
             space_data["spaceImage"] = space_image
+            print("Space Data: \n")
+            print(space_data)
             serializer = SpaceSerializer(data=space_data)
             if not serializer.is_valid():
                 return Response({"message": "Failed to create board game.", "errors": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)

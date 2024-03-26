@@ -25,7 +25,8 @@ class CurrencySerializer(serializers.ModelSerializer):
         model = Currency
         fields = ["currencyType", "currencyImage", "currencyDesc", "currencyBoardID"]
         extra_kwargs = {
-            "currencyImage": {"required": False, "allow_null": True, "default": None}
+            "currencyImage": {"required": False, "allow_null": True, "default": None},
+            "currencyDesc": {"required": False, "allow_null": True, "default": ""},
         }
     
     def create(self, validated_data):
@@ -41,11 +42,13 @@ class SpaceSerializer(serializers.ModelSerializer):
         extra_kwargs = {
             "spaceColor": {"required": False, "allow_null": True, "default": None},
             "spaceImage": {"required": False, "allow_null": True, "default": None},
+            "spaceDesc": {"required": False, "allow_null": True, "default": ""},
         }
     
     def create(self, validated_data):
         space = BoardGameSpace.objects.create(**validated_data)
         space.save()
+        print(f"\n woah a {space}")
         if space.spaceType == "Currency":
             space.setPurpose(currency=space.spaceValue[0], score=space.spaceValue[1])
         elif space.spaceType == "Turn":
@@ -53,10 +56,9 @@ class SpaceSerializer(serializers.ModelSerializer):
         elif space.spaceType == "Movement":
             space.setPurpose(spaces=space.spaceValue)
         elif space.spaceType == "Start":
-            space.setPurpose()
+            space.spaceValue = "Start"
         else:
             space.spaceValue = ""
-        print(space)
         return space
 
 class LayoutSerializer(serializers.ModelSerializer):

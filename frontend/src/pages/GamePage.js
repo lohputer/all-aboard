@@ -7,7 +7,7 @@ const GamePage = () => {
     let { gameId } = useParams();
     console.log(gameId);
     const { boardGames, currencies, spaces } = useContext(AuthContext);
-    console.log(boardGames);
+    console.log(boardGames, currencies, spaces);
     return (
         <>
         {boardGames.map(game => game.id == gameId && (
@@ -23,7 +23,7 @@ const GamePage = () => {
                     ))}
                 </ul>
                 <h2>Currencies</h2>
-                    {currencies.map(curr => (
+                    {currencies.map(curr => curr.currencyBoardID == gameId && (
                         <div className="align-items-center d-flex game-curr">
                             <span className="m-2">{curr.currencyType}</span>
                             {curr.currencyImage &&
@@ -46,25 +46,7 @@ const GamePage = () => {
                         {spaces.map(space => space.spaceName != "." && (
                             <tr>
                                 <td>{space.spaceName}</td>
-                                <td>{space.spaceType == "Currency" ? 
-                                    (parseInt(space.spaceValue[1]) > 0 ? 
-                                        `It gives the player ${space.spaceValue[1]} ${space.spaceValue[0]}.`
-                                    : 
-                                        `It removes ${Math.abs(parseInt(space.spaceValue[1]))} of the player's ${space.spaceValue[0]}.`
-                                    )
-                                : (space.spaceType == "Movement") ? 
-                                    (isNaN(parseInt(space.spaceValue)) ? 
-                                        `It moves the player to a ${space.spaceValue} space.`
-                                    : 
-                                        (parseInt(space.spaceValue) < 0 ? 
-                                            `It moves the player back ${Math.abs(space.spaceValue)} spaces.`
-                                        : 
-                                            `It moves the player forward ${Math.abs(space.spaceValue)} spaces.`
-                                        )
-                                    )
-                                : (space.spaceType == "Turn") ? 
-                                     `It skips the player's turn.`
-                                : "It does nothing."}</td>
+                                <td>{space.spaceDesc}</td>
                             </tr>
                         ))}
                     </tbody>

@@ -13,7 +13,7 @@ const HomePage = () => {
                         state: { boardGame: game }
                     }}>
                         <h1>{ game.title }</h1>
-                        <p>{ game.desc }</p>
+                        <p>{ game.desc.length > 50 ? game.desc.slice(0, 50) + "..." : game.desc }</p>
                         <p>Made by { game.creator }</p>
                     </Link>
                 </div> 
