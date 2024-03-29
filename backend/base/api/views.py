@@ -64,8 +64,13 @@ def createGame(request):
         )
         currencies_data = json.loads(request.data.get("currencies[]"))
         currency_images = request.FILES.getlist("currencyImages[]")
+        while len(currency_images) < len(currencies_data):
+            currency_images.append(None)
         spaces_data = json.loads(request.data.get("spaces", "[]"))
         spaces_images = request.FILES.getlist("spaceImages[]")
+        while len(spaces_images) < len(spaces_data):
+            spaces_images.append(None)
+        print(currencies_data, currency_images)
         for currency_data, currency_image in zip(currencies_data, currency_images):
             currency_data["currencyBoardID"] = new_board.pk
             currency_data['currencyImage'] = currency_image
@@ -73,6 +78,7 @@ def createGame(request):
             if not serializer.is_valid():
                 return Response({"message": "Failed to create board game.", "errors": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
             serializer.save()
+        print(spaces_data, spaces_images)
         for space_data, space_image in zip(spaces_data, spaces_images):
             space_data["spaceBoardID"] = new_board.pk
             space_data["spaceImage"] = space_image

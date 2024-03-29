@@ -39,11 +39,12 @@ const CreatePage = () => {
             formData.append("currencyImages[]", currency.currencyImage);
         });
         formData.append("currencies[]", JSON.stringify(currencies))
-        spaces.shift();
+        const blanks = spaces.shift();
         spaces.forEach(space => {
             delete space["spaceOption"];
             formData.append("spaceImages[]", space.spaceImage);
         });
+        console.log(formData["spaceImages"])
         formData.append("spaces", JSON.stringify(spaces));
         formData.append("layout", JSON.stringify(convertedLayout));
         try {
@@ -53,8 +54,11 @@ const CreatePage = () => {
             });
             let data = await response.json();
             console.log(data);
+            spaces.unshift(blanks);
             if (data["message"] === "Board game created successfully.") {
-                //window.location = "/"
+                window.location = "/"
+            } else {
+                alert("oh dang something went wrong");
                 for (let i=0; i<layout.length; i++) {
                     for (let j=0; j<layout.length; j++) {
                         for (let k=0; k<spaces.length; k++) {
@@ -66,8 +70,6 @@ const CreatePage = () => {
                         
                     }
                 }
-            } else {
-                alert("oh dang something went wrong");
             }
         } catch (error) {
             console.log(error, spaces);
