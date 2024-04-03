@@ -594,7 +594,7 @@ const CreatePage = () => {
                     <div className="form-check">
                         <input className="form-check-input" name="publicity" type="checkbox" value="" id="publicity" onChange={() => setPublicity(!publicity)} />
                         <label className="form-check-label" htmlFor="publicity">
-                            Publicity
+                         Publicity
                         </label>
                     </div>
                     <input type="submit" className="p-2 col-12 my-4 btn btn-success" value="Submit" />
