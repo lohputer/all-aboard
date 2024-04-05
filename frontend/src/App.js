@@ -9,6 +9,7 @@ import GamePage from './pages/GamePage'
 import ProfilePage from './pages/ProfilePage'
 import { AuthProvider } from './context/AuthContext'
 import RoomJoinPage from './pages/RoomJoinPage'
+import ChatRoom from './pages/RoomPage'
 
 function App() {
     return (
