@@ -1,6 +1,14 @@
 from rest_framework import serializers
 from base.models import *
 from django.contrib.auth.models import User
+class ChatSerializer(serializers.ModelSerializer):
+    user = serializers.SerializerMethodField("get_name")
+    class Meta:
+        model = Chat
+        fields = '__all__'
+    def get_name(self, obj):
+        return obj.user.username
+    
 class UserProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserProfile

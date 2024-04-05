@@ -1,30 +1,16 @@
 from django.db import models
 from django.contrib.auth.models import User
-
-def generate_random_string(length):
-    random_string = "".join(random.choice(string.ascii_letters) for _ in range(length))
-    return random_string
+from django_resized import ResizedImageField
 
 class Room(models.Model):
-    token = models.CharField(max_length=255, unique=True)
-    users = models.ManyToManyField(User)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-    def save(self, *args, **kwargs):
-        if not self.token:
-            self.token = generate_random_string(20)
-        return super(Room, self).save(*args, **kwargs)
+    name = models.CharField(max_length=255, blank=False)
+    password = models.CharField(max_length=255, blank=False)
 
-class Message(models.Model):
-    room = models.ForeignKey(Room, on_delete=models.CASCADE)
-    sender = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name="sender_user"
-    )
-    message = models.TextField()
-    timestamp = models.DateTimeField(auto_now_add=True)
-    def __str__(self):
-        return self.sender.username
-    
+class Chat(models.Model):
+    room = models.ForeignKey(Room, on_delete=models.CASCADE, blank=False, related_name="room")
+    user = models.ForeignKey(User, on_delete=models.CASCADE, blank=False, related_name="chatUser")
+    message = models.TextField(blank=True)
+
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     profilePic = models.ImageField(blank=True, null=True, upload_to="")

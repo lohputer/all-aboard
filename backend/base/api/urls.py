@@ -13,5 +13,5 @@ urlpatterns = [
     path("create/", createGame, name="createGame"),
     path("board-games/", retrieveBoards, name="retrieveBoards"),
     path("profile/", retrieveProfile, name="retrieveProfile"),
-    path("editprofile/", editProfile, name="editProfile"),
+    path("editprofile/", editProfile, name="editProfile")
 ]
