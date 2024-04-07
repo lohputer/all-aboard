@@ -142,14 +142,3 @@ def editProfile(request):
         profileData = serializer.data
         profileData['user'] = User.objects.get(pk=profileData['user']).username
         return Response({"profile": profileData, "games": gamesSerializer.data})
-
-@api_view(['POST'])
-def createRoom(request):
-    if request.method == "POST":
-        data = json.loads(request.body)
-        try:
-            Room.objects.get(name = data['name'], password = data['password'])
-            return Response({"status": 404})
-        except:
-            Room.objects.create(name = data['name'], password = data['password'])
-            return Response({"status": 200})
