@@ -4,6 +4,6 @@ from . import consumers
 
 application = ProtocolTypeRouter({
     "websocket": URLRouter([
-        path("ws/chat/<str:room_name>/", consumers.ChatConsumer.as_asgi()),
+        path("ws/chat/", consumers.ChatConsumer.as_asgi()),
     ]),
 })

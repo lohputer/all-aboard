@@ -23,7 +23,7 @@ function App() {
                     <Route exact path="/game/:gameId" element={<GamePage/>}/>
                     <Route exact path="/profile/:username" element={<ProfilePage/>}/>
                     <Route path="/create" element={<PrivateRoute><CreatePage/></PrivateRoute>}/>
-                    <Route path="/chat:roomName" element={<PrivateRoute><ChatRoom/></PrivateRoute>}/>
+                    <Route path="/chat" element={<PrivateRoute><ChatRoom/></PrivateRoute>}/>
                 </Routes>
                 </AuthProvider>
             </Router>

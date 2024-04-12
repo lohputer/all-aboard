@@ -2,15 +2,6 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.db import models
 
-class Room(models.Model):
-    name = models.CharField(max_length=100)
-
-class Message(models.Model):
-    room = models.ForeignKey(Room, on_delete=models.CASCADE)
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    content = models.TextField()
-    timestamp = models.DateTimeField(auto_now_add=True)
-
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     profilePic = models.ImageField(blank=True, null=True, upload_to="")
@@ -21,12 +12,25 @@ class UserProfile(models.Model):
 class BoardGame(models.Model):
     creator = models.ForeignKey(User, on_delete=models.CASCADE)
     diceRoll = models.IntegerField()
+    playerMin = models.IntegerField()
+    playerMax = models.IntegerField()
     title = models.CharField(max_length=50)
     desc = models.TextField(default="", blank=True, null=True)
     rules = models.TextField(default="", blank=True, null=True)
     publicity = models.BooleanField(default=True)
+    winGoal = models.JSONField(blank=True, null=True)
+    winGoalType = models.TextField(default="", blank=True, null=True)
     def __str__(self):
         return f"{self.creator}: {self.title}"
+    def setWinGoal(self, **kwargs):
+        if self.winGoalType == "Currency":
+            self.winGoal = {kwargs["currency"]: kwargs["score"]}
+        elif self.winGoalType == "Space":
+            self.winGoal = kwargs["space"]
+        elif self.winGoalType == "Survive":
+            self.winGoal = "Survive"
+        elif self.winGoalType == "RoundCurrency":
+            self.winGoal = kwargs["currency"]
 
 class Currency(models.Model):
     currencyType = models.TextField()
@@ -35,6 +39,31 @@ class Currency(models.Model):
     currencyDesc = models.TextField(default="", blank=True, null=True)
     def __str__(self):
         return f"{self.currencyBoardID} - {self.currencyType}"
+
+class Item(models.Model):
+    itemName = models.TextField()
+    itemImage = models.ImageField(blank=True, upload_to="")
+    itemPurpose = models.JSONField(blank=True, null=True)
+    itemType = models.TextField(default="", blank=True, null=True)
+    itemBoardID = models.ForeignKey(BoardGame, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f"{self.itemBoardID} - {self.itemName}"
+    
+    def setItemPurpose(self, **kwargs):
+        print(kwargs)
+        if self.itemType == "multiplyCurrency" or self.itemType == "addCurrency":
+            self.itemValue = {"chosen": kwargs["chosen"], 
+                              "currency": kwargs["currency"], 
+                              "value": kwargs["value"]}
+        elif self.itemType == "moveSpaces":
+            self.itemValue = {"chosen": kwargs["chosen"], "spaces": kwargs["spaces"], "space": kwargs["space"]}
+        elif self.itemType == "steal":
+            self.itemValue = {"chosen": kwargs["chosen"], "currency": kwargs["currency"], "item": kwargs["item"], "amount": kwargs["amount"]}
+        elif self.itemType == "turn":
+            self.itemValue = kwargs["turnBased"]
+        else: 
+            self.itemValue = kwargs["spaceType"]
 
 class BoardGameSpace(models.Model):
     spaceName = models.TextField()
@@ -58,6 +87,14 @@ class BoardGameSpace(models.Model):
             self.spaceValue = kwargs["spaces"]
         elif self.spaceType == "Start":
             self.spaceValue = "Start"
+        elif self.spaceType == "Shop":
+            self.spaceValue = kwargs["shopItems"]
+        elif self.spaceType == "List":
+            self.spaceValue = "pas"
+            #how to set a model's property to an array of the same model
+        elif self.spaceType == "Gate":
+            self.spaceValue = {"itemName": kwargs["name"],
+                               "amount": kwargs["amount"]}
         else: 
             self.spaceValue = ""
 
