@@ -90,8 +90,7 @@ class BoardGameSpace(models.Model):
         elif self.spaceType == "Shop":
             self.spaceValue = kwargs["shopItems"]
         elif self.spaceType == "List":
-            self.spaceValue = "pas"
-            #how to set a model's property to an array of the same model
+            self.spaceValue = models.ArrayField(models.ForeignKey(BoardGame, on_delete=models.CASCADE))
         elif self.spaceType == "Gate":
             self.spaceValue = {"itemName": kwargs["name"],
                                "amount": kwargs["amount"]}
