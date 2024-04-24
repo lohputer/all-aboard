@@ -103,3 +103,11 @@ class GameLayout(models.Model):
 
     def __str__(self):
         return f"{self.boardID} Layout"
+    
+class Room(models.Model):
+    room_host = models.ForeignKey(User, on_delete=models.CASCADE)
+    room_name = models.JSONField()
+    boardUsed = models.ForeignKey(BoardGame, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f"{self.room_name}"

@@ -57,7 +57,7 @@ const Header = () => {
                         : 
                             <>
                                 <li class="nav-item">
-                                    <Link class="nav-link text-light" to="/chat">Create Chat</Link>
+                                    <Link class="nav-link text-light" to="/chat">Create Room</Link>
                                 </li>
                                 <li class="nav-item">
                                     <Link class="nav-link text-light" to="/create">Custom Create</Link>
