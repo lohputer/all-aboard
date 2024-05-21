@@ -32,6 +32,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    "daphne",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -40,10 +41,11 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "rest_framework",
     "rest_framework_simplejwt.token_blacklist",
-    "corsheaders",
-    "base",
     "channels",
+    "corsheaders",
+    "base"
 ]
+
 ASGI_APPLICATION = 'backend.asgi.application'
 
 CORS_ALLOW_ALL_ORIGINS = True
@@ -186,10 +188,7 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 #django channels
 
 CHANNEL_LAYERS = {
-    "default": {
-        "BACKEND": "channels_redis.core.RedisChannelLayer",
-        "CONFIG": {
-            "hosts": [("127.0.0.1", 6379)],
-        },
-    },
+    'default': {
+        'BACKEND': "channels.layers.InMemoryChannelLayer"
+    }
 }

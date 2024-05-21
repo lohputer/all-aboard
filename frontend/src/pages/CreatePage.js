@@ -20,11 +20,15 @@ const CreatePage = () => {
             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
         ]);
     const spaceIds = spaces.map(space => space.id);
+    console.log(spaceIds)
     let createCustom = async (e) => {
         e.preventDefault();
         let convertedLayout = layout;
+        console.log(layout);
+        console.log(spaceIds);
         for (let i=0; i<convertedLayout.length; i++) {
             for (let j=0; j<convertedLayout.length; j++) {
+                console.log(spaces[spaceIds.indexOf(convertedLayout[i][j])])
                 convertedLayout[i][j] = spaces[spaceIds.indexOf(convertedLayout[i][j])].spaceName;
             }
         }
@@ -53,7 +57,7 @@ const CreatePage = () => {
                 body: formData
             });
             let data = await response.json();
-            console.log(data);
+            console.log("date: " + data);
             spaces.unshift(blanks);
             if (data["message"] === "Board game created successfully.") {
                 window.location = "/"
@@ -64,7 +68,9 @@ const CreatePage = () => {
                         for (let k=0; k<spaces.length; k++) {
                             if (layout[i][j] == spaces[k].spaceName) {
                                 layout[i][j] = spaces[k].id;
-                                break;
+                            }
+                            else if (layout[i][j] == ".") {
+                                layout[i][j] = 0;
                             }
                         }
                         
@@ -72,13 +78,16 @@ const CreatePage = () => {
                 }
             }
         } catch (error) {
+            spaces.unshift(blanks);
             console.log(error, spaces);
             for (let i=0; i<layout.length; i++) {
                 for (let j=0; j<layout.length; j++) {
                     for (let k=0; k<spaces.length; k++) {
                         if (layout[i][j] == spaces[k].spaceName) {
                             layout[i][j] = spaces[k].id;
-                            break;
+                        }
+                        else if (layout[i][j] == ".") {
+                            layout[i][j] = 0;
                         }
                     }
                     

@@ -12,8 +12,8 @@ class UserProfile(models.Model):
 class BoardGame(models.Model):
     creator = models.ForeignKey(User, on_delete=models.CASCADE)
     diceRoll = models.IntegerField()
-    playerMin = models.IntegerField()
-    playerMax = models.IntegerField()
+    playerMin = models.IntegerField(null=True)
+    playerMax = models.IntegerField(null=True)
     title = models.CharField(max_length=50)
     desc = models.TextField(default="", blank=True, null=True)
     rules = models.TextField(default="", blank=True, null=True)

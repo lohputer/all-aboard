@@ -29,7 +29,7 @@ const Header = () => {
             <div class="container-fluid">
                 <Link class="navbar-brand d-inline" to="/">
                     <h1 class="text-light">
-                    All-ABoard
+                    insert logo
                     {user &&
                         <Link className="text-light text-decoration-none" to={{
                             pathname: `/profile/${user['username']}`,
@@ -57,7 +57,7 @@ const Header = () => {
                         : 
                             <>
                                 <li class="nav-item">
-                                    <Link class="nav-link text-light" to="/chat">Create Room</Link>
+                                    <Link class="nav-link text-light" to="/generate">Create Room</Link>
                                 </li>
                                 <li class="nav-item">
                                     <Link class="nav-link text-light" to="/create">Custom Create</Link>

@@ -1,8 +1,23 @@
-*:not(p, h1, h2, h3) {
+.App, div {
     padding: 0;
     margin: 0;
     background-color: black;
     color: white;
+}
+
+nav > div {
+    background-image: url("https://t4.ftcdn.net/jpg/02/40/93/69/360_F_240936998_2wBjelIOKw1vGKkfOpCjiA25waBAiLeb.jpg");
+    background-repeat: repeat;
+    background-size: contain;
+}
+
+nav {
+    background-color: none;
+}
+
+nav h1 {
+    background-color: black;
+    padding: 0 20px;
 }
 
 .nav-link {

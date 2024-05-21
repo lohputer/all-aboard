@@ -8,7 +8,8 @@ import PrivateRoute from './utils/PrivateRoute'
 import GamePage from './pages/GamePage'
 import ProfilePage from './pages/ProfilePage'
 import { AuthProvider } from './context/AuthContext'
-import ChatRoom from './pages/ChatRoom'
+import GenerateRoom from './pages/GenerateRoom'
+import Room from './pages/Room'
 
 function App() {
     return (
@@ -23,7 +24,8 @@ function App() {
                     <Route exact path="/game/:gameId" element={<GamePage/>}/>
                     <Route exact path="/profile/:username" element={<ProfilePage/>}/>
                     <Route path="/create" element={<PrivateRoute><CreatePage/></PrivateRoute>}/>
-                    <Route path="/chat" element={<PrivateRoute><ChatRoom/></PrivateRoute>}/>
+                    <Route path="/generate" element={<PrivateRoute><GenerateRoom/></PrivateRoute>}/>
+                    <Route exact path="/room/:roomCode" element={<PrivateRoute><Room/></PrivateRoute>}/>
                 </Routes>
                 </AuthProvider>
             </Router>
