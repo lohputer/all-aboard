@@ -29,7 +29,7 @@ const Header = () => {
             <div class="container-fluid">
                 <Link class="navbar-brand d-inline" to="/">
                     <h1 class="text-light">
-                    insert logo
+                    All A-Board
                     {user &&
                         <Link className="text-light text-decoration-none" to={{
                             pathname: `/profile/${user['username']}`,
